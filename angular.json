@@ -21,6 +21,12 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
+              "src/assets",
+              {
+                "glob": "runtime-config.js",
+                "input": "src/assets",
+                "output": "/"
+              },
               {
                 "glob": "**/*",
                 "input": "public"
@@ -62,6 +68,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "src/proxy.conf.js"
+          },
           "configurations": {
             "production": {
               "buildTarget": "ndl-view:build:production"
