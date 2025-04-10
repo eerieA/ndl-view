@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, catchError, switchMap, filter, retryWhen, delay, tap, takeWhile } from 'rxjs/operators';
+import { map, catchError, switchMap, filter, retry } from 'rxjs/operators';
 import { RtConfService } from './rt-conf.service';
 import { Observable, throwError, timer } from 'rxjs';
 
@@ -28,19 +28,18 @@ export class NdlService {
             console.log('✅ Successful response');
             return response;
           }),
-          retryWhen((errors) =>
-            errors.pipe(
-              tap((err) => {
-                if (err instanceof DOMException && err.name === 'AbortError') {
-                  console.warn('⚠️ AbortError caught, will retry...');
-                } else {
-                  console.warn('⚠️ Error caught, will retry:', err);
-                }
-              }),
-              delay(1000), // Wait 1s before retrying
-              takeWhile((err, index) => index < 5) // Max 5 retries
-            )
-          ),
+          retry({
+            count: 5,
+            delay: (error, retryCount) => {
+              if (error instanceof DOMException && error.name === 'AbortError') {
+                console.warn(`⚠️ Retry ${retryCount}: AbortError caught`);
+                return timer(1000); // wait 1 second before retrying
+              }
+              // For other error types, also retry (or optionally rethrow)
+              console.warn(`⚠️ Retry ${retryCount}:`, error);
+              return timer(1000);
+            }
+          }),
           catchError((error) => {
             console.error('❌ Final error after retries:', error);
             return throwError(() => error);
