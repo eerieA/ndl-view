@@ -1,1 +1,11 @@
-<p>home works {{testVar}}!</p>
+<ng-container *ngIf="isBrowser">
+    <div class="crypto-chart-container">
+        <label for="crypto-select">Choose a cryptocurrency:</label>
+        <select id="crypto-select" [(ngModel)]="selectedCrypto" (change)="onCryptoChange(selectedCrypto)">
+            <option *ngFor="let crypto of cryptoOptions" [value]="crypto">{{ crypto }}</option>
+        </select>
+
+        <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="'line'">
+        </canvas>
+    </div>
+</ng-container>

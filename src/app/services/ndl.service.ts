@@ -8,6 +8,7 @@ import { Observable, throwError, timer } from 'rxjs';
 export class NdlService {
   // private baseUrl = 'https://data.nasdaq.com/api/v3/datatables/ETFG/FUND.json';
   private baseUrl = '/api/v3/datatables/ETFG/FUND.json';
+  private cryBaseUrl = '/api/v3/datatables/QDL/BITFINEX';
 
   constructor(
     private http: HttpClient,
@@ -48,4 +49,24 @@ export class NdlService {
       })
     );
   }
+
+  getCryptoData(code: string, startDate: string, endDate: string): Observable<any> {
+    // const startDate = '2025-03-08';
+    // const endDate = '2025-04-08';
+  
+    return this.configService.getApiKey$().pipe(
+      filter((key) => key !== 'no-key'),
+      switchMap((apiKey) => {
+        const url = `${this.cryBaseUrl}?code=${code}&date.gte=${startDate}&date.lte=${endDate}&api_key=${apiKey}`;
+        return this.http.get(url).pipe(
+          map((response) => response),
+          catchError((error) => {
+            console.error('Crypto data fetch error:', error);
+            return throwError(() => error);
+          })
+        );
+      })
+    );
+  }
+  
 }

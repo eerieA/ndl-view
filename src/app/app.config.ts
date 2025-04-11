@@ -4,7 +4,8 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import {httpErrorInterceptor} from './http-error.interceptor';
+import { httpErrorInterceptor } from './http-error.interceptor';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }),
@@ -13,5 +14,6 @@ export const appConfig: ApplicationConfig = {
   provideHttpClient(
     withFetch(),
     withInterceptors([httpErrorInterceptor])
-  ),]
+  ),
+  provideCharts(withDefaultRegisterables()),]
 };
