@@ -1,10 +1,9 @@
 import { Component, inject, Inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, CommonModule  } from '@angular/common'; // Import this
+import { isPlatformBrowser, CommonModule } from '@angular/common'; // Import this
 import { Subscription, filter, take } from 'rxjs';
 import { FormsModule } from '@angular/forms'; // for [(ngModel)]
 import { BaseChartDirective } from 'ng2-charts';
 import { NdlService } from '../../services/ndl.service';
-import { RtConfService } from '../../services/rt-conf.service';
 
 interface CryptoRow {
   [index: number]: any; // still loose, but avoids 'any' warnings
@@ -18,7 +17,6 @@ interface CryptoRow {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
-  private rtConfService = inject(RtConfService);
 
   testVar: string = '123';
   testNum: number = this.ndlService.add(2, 4);
@@ -28,15 +26,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   chartData: any = [];
   chartOptions: any = {}; // Add this line to define chartOptions
   isBrowser: boolean;
-  
+
   private sub = new Subscription();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     // Check the platform and set isBrowser to true or false
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
-  
-  
+
+
   ngOnInit() {
     if (this.isBrowser) {
       // Initialize chart and other client-side logic
@@ -53,11 +51,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       };
     }
 
-    // Subscribe to the API key subject to wait until key is available
-    this.rtConfService.getApiKey$().pipe(
-      filter(key => key !== 'no-key'),
-      take(1)
-    ).subscribe(() => this.loadData());
+    // Now that API key is no longer needed on frontend, load data directly
+    this.loadData();
   }
 
   loadData() {
@@ -107,7 +102,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       ]
     };
-  }  
+  }
 
   ngOnDestroy() {
     console.log('Component destroyed — canceling subscriptions');

@@ -1,8 +1,8 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Environments related
-/src/assets/runtime-config.js
 /src/env/environment.ts
+.env
 
 # Compiled output
 /dist
@@ -12,6 +12,7 @@
 
 # Node
 /node_modules
+/api/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -23,6 +24,7 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+.vscode
 
 # Visual Studio Code
 .vscode/*

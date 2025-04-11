@@ -23,11 +23,6 @@
             "assets": [
               "src/assets",
               {
-                "glob": "runtime-config.js",
-                "input": "src/assets",
-                "output": "/"
-              },
-              {
                 "glob": "**/*",
                 "input": "public"
               }

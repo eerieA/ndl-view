@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "module": "commonjs", // Ensure CommonJS modules for Node.js
+        "target": "ES2020", // Node.js supports up to ES2020
+        "outDir": "./dist", // Output directory for compiled JavaScript files
+        "strict": true, // Enable strict type checking
+        "esModuleInterop": true, // Enable ES module interoperability
+        "skipLibCheck": true, // Skip checking declaration files
+        "resolveJsonModule": true, // Allow importing JSON files
+        "types": [
+            "node"
+        ], // Use Node types for server-side code
+        "allowJs": true, // Allow JavaScript files to be included
+        "sourceMap": true // Generate source maps for debugging
+    },
+    "include": [
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
