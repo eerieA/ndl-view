@@ -19,8 +19,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
 
   testVar: string = '123';
-  testNum: number = this.ndlService.add(2, 4);
-  fundData: any;
+  
   cryptoOptions = ['BTCUSD', 'ETHUSD', 'ZRXUSD'];
   selectedCrypto = 'BTCUSD';
   chartData: any = [];

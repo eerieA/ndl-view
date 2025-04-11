@@ -14,7 +14,6 @@ const NDL_API_KEY = process.env.NDL_API_KEY || 'no-key';
 const NDL_BASE_URL = 'https://data.nasdaq.com/api/v3/datatables/QDL/BITFINEX';
 
 app.get('/', (req: Request, res: Response) => {
-  console.log("NDL_API_KEY:", NDL_API_KEY);
   res.send('Hello, TypeScript Express!');
 });
 
