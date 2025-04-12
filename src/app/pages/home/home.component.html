@@ -1,11 +1,27 @@
-<ng-container *ngIf="isBrowser">
-    <div class="crypto-chart-container">
-        <label for="crypto-select">Choose a cryptocurrency:</label>
-        <select id="crypto-select" [(ngModel)]="selectedCrypto" (change)="onCryptoChange(selectedCrypto)">
-            <option *ngFor="let crypto of cryptoOptions" [value]="crypto">{{ crypto }}</option>
-        </select>
-
-        <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="'line'">
-        </canvas>
-    </div>
-</ng-container>
+<table *ngIf="cryptoList.length > 0">
+    <thead>
+        <tr>
+            <th>Symbol</th>
+            <th>Date</th>
+            <th>Open</th>
+            <th>Close</th>
+            <th>High</th>
+            <th>Low</th>
+            <th>Volume</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let entry of cryptoList">
+            <td>
+                <img [src]="entry.iconUrl" alt="{{ entry.code }}" width="20" height="20" />
+                {{ entry.code }}
+            </td>
+            <td>{{ entry.date }}</td>
+            <td>{{ entry.open }}</td>
+            <td>{{ entry.close }}</td>
+            <td>{{ entry.high }}</td>
+            <td>{{ entry.low }}</td>
+            <td>{{ entry.volume }}</td>
+        </tr>
+    </tbody>
+</table>

@@ -1,29 +1,25 @@
 import { Component, inject, Inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser, CommonModule } from '@angular/common'; // Import this
 import { Subscription, filter, take } from 'rxjs';
-import { FormsModule } from '@angular/forms'; // for [(ngModel)]
-import { BaseChartDirective } from 'ng2-charts';
 import { NdlService } from '../../services/ndl.service';
+import { CryptoEntry } from '../../models/crypto-entry.model'
 
-interface CryptoRow {
-  [index: number]: any; // still loose, but avoids 'any' warnings
-}
+import { FormsModule } from '@angular/forms'; // for [(ngModel)]
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, BaseChartDirective, CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
+  cryptoList: CryptoEntry[] = [];
 
-  testVar: string = '123';
-  
   cryptoOptions = ['BTCUSD', 'ETHUSD', 'ZRXUSD'];
   selectedCrypto = 'BTCUSD';
   chartData: any = [];
-  chartOptions: any = {}; // Add this line to define chartOptions
+  chartOptions: any = {};
   isBrowser: boolean;
 
   private sub = new Subscription();
@@ -34,7 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.isBrowser) {
       // Initialize chart and other client-side logic
       this.chartOptions = {
@@ -56,51 +52,67 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadData() {
     console.log("loadData");
-    // Ensure the key is ready and fetch data
-    this.sub.add(
-      this.ndlService.getCryptoData(this.selectedCrypto, '2025-03-08', '2025-03-12').subscribe({
-        next: (data) => {
-          this.chartData = this.transformCryptoData(data);
-          console.log('Crypto data:', data);
-          console.log('this.chartData:', this.chartData);
-        },
-        error: (err) => console.error('Fetch error:', err)
-      })
-    );
-  }
 
-  onCryptoChange(code: string) {
-    this.selectedCrypto = code; // Keep internal state in sync
-    console.log("onCryptoChange triggered with:", code);
+    const targetDate = '2025-03-07';
+    const start = targetDate;
+    const end = targetDate;
 
-    this.ndlService.getCryptoData(code, '2025-03-08', '2025-03-12').subscribe({
-      next: (data) => {
-        console.log('Raw crypto data:', data);
-        this.chartData = this.transformCryptoData(data);
-      },
-      error: (err) => console.error('Fetch error:', err)
+    this.cryptoList = []; // Clear old entries
+
+    this.cryptoOptions.forEach(code => {
+      this.sub.add(
+        this.ndlService.getCryptoData(code, start, end).subscribe({
+          next: (data) => {
+            const entry = this.parseSingleEntry(data, code, targetDate);
+            if (entry) {
+              this.cryptoList.push(entry);
+            }
+          },
+          error: (err) => console.error(`Fetch error for ${code}:`, err)
+        })
+      );
     });
   }
 
-  transformCryptoData(raw: any): any {
-    console.log('transforming crypto data:', raw);
-    const rows: CryptoRow[] = raw?.datatable?.data || [];
-    const labels = rows.map(row => row[1] as string);
-    const values = rows.map(row => row[3] as number);
+  parseSingleEntry(raw: any, code: string, date: string): CryptoEntry | null {
+    const rows: any[] = raw?.datatable?.data || [];
+
+    const row = rows.find(r => r[1] === date); // Find the matching date
+    if (!row) return null;
 
     return {
-      labels,
-      datasets: [
-        {
-          label: this.selectedCrypto,
-          data: values,
-          borderColor: 'rgba(75, 192, 192, 1)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          fill: true,
-          tension: 0.1
-        }
-      ]
+      code: code,
+      date: row[1],
+      open: row[2],
+      close: row[3],
+      high: row[4],
+      low: row[5],
+      volume: row[6],
+      iconUrl: this.lookUpIconUrl(code)
     };
+  }
+
+  parseCryptoEntries(raw: any, code: string): CryptoEntry[] {
+    const rows = raw?.datatable?.data || [];
+    return rows.map((row: any[]) => ({
+      code: code,
+      date: row[1],
+      open: row[2],
+      close: row[3],
+      high: row[4],
+      low: row[5],
+      volume: row[6],
+      iconUrl: this.lookUpIconUrl(this.selectedCrypto)
+    } as CryptoEntry));
+  }
+
+  lookUpIconUrl(symbol: string): string {
+    const map: Record<string, string> = {
+      BTCUSD: 'assets/icons/btc.svg',
+      ETHUSD: 'assets/icons/eth.svg',
+      ZRXUSD: 'assets/icons/zrx.svg'
+    };
+    return map[symbol] || 'assets/icons/generic.svg';
   }
 
   ngOnDestroy() {
