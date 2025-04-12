@@ -5,19 +5,29 @@ import { NdlService } from '../../services/ndl.service';
 import { CryptoEntry } from '../../models/crypto-entry.model'
 
 import { FormsModule } from '@angular/forms'; // for [(ngModel)]
+import { MatTableModule } from '@angular/material/table';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
   cryptoList: CryptoEntry[] = [];
-
+  displayedColumns: string[] = [
+    'symbol',
+    'date',
+    'open',
+    'close',
+    'high',
+    'low',
+    'volume'
+  ];
   cryptoOptions = ['BTCUSD', 'ETHUSD', 'ZRXUSD'];
-  selectedCrypto = 'BTCUSD';
+
   chartData: any = [];
   chartOptions: any = {};
   isBrowser: boolean;
@@ -102,7 +112,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       high: row[4],
       low: row[5],
       volume: row[6],
-      iconUrl: this.lookUpIconUrl(this.selectedCrypto)
+      iconUrl: this.lookUpIconUrl(code)
     } as CryptoEntry));
   }
 
