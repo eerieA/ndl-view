@@ -1,5 +1,5 @@
 <mat-card *ngIf="cryptoList.length > 0">
-    <mat-table [dataSource]="cryptoList" class="mat-elevation-z8">
+    <mat-table [dataSource]="cryptoList" class="mat-elevation-z2">
 
         <!-- Dynamically create columns -->
         <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.key">

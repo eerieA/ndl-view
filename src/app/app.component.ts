@@ -9,7 +9,7 @@ import { HomeComponent } from './pages/home/home.component';
     HomeComponent
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'ndl-view';

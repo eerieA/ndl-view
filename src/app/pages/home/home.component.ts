@@ -12,7 +12,7 @@ import { MatCardModule } from '@angular/material/card';
   selector: 'app-home',
   imports: [FormsModule, CommonModule, MatTableModule, MatCardModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
