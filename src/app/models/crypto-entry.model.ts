@@ -1,10 +1,12 @@
 export interface CryptoEntry {
     code: string;
     date: string;
-    open: number;
-    close: number;
     high: number;
     low: number;
+    mid: number;
+    last: number;
+    bid: number;
+    ask: number;
     volume: number;
     iconUrl: string;
 }

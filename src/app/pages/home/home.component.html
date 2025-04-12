@@ -1,53 +1,28 @@
 <mat-card *ngIf="cryptoList.length > 0">
     <mat-table [dataSource]="cryptoList" class="mat-elevation-z8">
 
-        <!-- Symbol Column -->
-        <ng-container matColumnDef="symbol">
-            <mat-header-cell *matHeaderCellDef> Symbol </mat-header-cell>
+        <!-- Dynamically create columns -->
+        <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.key">
+            <mat-header-cell *matHeaderCellDef> {{ col.label }} </mat-header-cell>
             <mat-cell *matCellDef="let entry">
-                <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
-                {{ entry.code }}
+                <ng-container [ngSwitch]="col.key">
+
+                    <!-- Icon + Code for 'code' column -->
+                    <ng-container *ngSwitchCase="'code'">
+                        <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
+                        {{ entry.code }}
+                    </ng-container>
+
+                    <!-- Default rendering for other columns -->
+                    <ng-container *ngSwitchDefault>
+                        {{ entry[col.key] }}
+                    </ng-container>
+
+                </ng-container>
             </mat-cell>
         </ng-container>
 
-        <!-- Date Column -->
-        <ng-container matColumnDef="date">
-            <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
-            <mat-cell *matCellDef="let entry"> {{ entry.date }} </mat-cell>
-        </ng-container>
-
-        <!-- Open Column -->
-        <ng-container matColumnDef="open">
-            <mat-header-cell *matHeaderCellDef> Open </mat-header-cell>
-            <mat-cell *matCellDef="let entry"> {{ entry.open }} </mat-cell>
-        </ng-container>
-
-        <!-- Close Column -->
-        <ng-container matColumnDef="close">
-            <mat-header-cell *matHeaderCellDef> Close </mat-header-cell>
-            <mat-cell *matCellDef="let entry"> {{ entry.close }} </mat-cell>
-        </ng-container>
-
-        <!-- High Column -->
-        <ng-container matColumnDef="high">
-            <mat-header-cell *matHeaderCellDef> High </mat-header-cell>
-            <mat-cell *matCellDef="let entry"> {{ entry.high }} </mat-cell>
-        </ng-container>
-
-        <!-- Low Column -->
-        <ng-container matColumnDef="low">
-            <mat-header-cell *matHeaderCellDef> Low </mat-header-cell>
-            <mat-cell *matCellDef="let entry"> {{ entry.low }} </mat-cell>
-        </ng-container>
-
-        <!-- Volume Column -->
-        <ng-container matColumnDef="volume">
-            <mat-header-cell *matHeaderCellDef> Volume </mat-header-cell>
-            <mat-cell *matCellDef="let entry"> {{ entry.volume }} </mat-cell>
-        </ng-container>
-
-        <!-- Header & Row declarations -->
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+        <mat-header-row *matHeaderRowDef="columnHeaders"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: columnHeaders"></mat-row>
     </mat-table>
 </mat-card>

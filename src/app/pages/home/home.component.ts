@@ -16,17 +16,21 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
+
+  columnDefs = [
+    { key: 'code', label: 'Symbol', icon: true },
+    { key: 'date', label: 'Date' },
+    { key: 'high', label: 'High' },
+    { key: 'low', label: 'Low' },
+    { key: 'mid', label: 'Mid' },
+    { key: 'last', label: 'Last' },
+    { key: 'bid', label: 'Bid' },
+    { key: 'ask', label: 'Ask' },
+    { key: 'volume', label: 'Volume' }
+  ];  
   cryptoList: CryptoEntry[] = [];
-  displayedColumns: string[] = [
-    'symbol',
-    'date',
-    'open',
-    'close',
-    'high',
-    'low',
-    'volume'
-  ];
-  cryptoOptions = ['BTCUSD', 'ETHUSD', 'ZRXUSD'];
+  // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
+  cryptoOptions = ['BTCUSD', 'ETHUSD', 'ZRXUSD', 'mock'];
 
   chartData: any = [];
   chartOptions: any = {};
@@ -67,22 +71,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     const start = targetDate;
     const end = targetDate;
 
+    const codes = this.cryptoOptions.join(',');
+    console.log("joined codes:", codes);
     this.cryptoList = []; // Clear old entries
 
-    this.cryptoOptions.forEach(code => {
-      this.sub.add(
-        this.ndlService.getCryptoData(code, start, end).subscribe({
-          next: (data) => {
-            const entry = this.parseSingleEntry(data, code, targetDate);
-            if (entry) {
-              this.cryptoList.push(entry);
-            }
-          },
-          error: (err) => console.error(`Fetch error for ${code}:`, err)
-        })
-      );
-    });
+    this.sub.add(
+      this.ndlService.getCryptoData(codes, start, end).subscribe({
+        next: (data) => {
+          const entries = this.parseCryptoEntries(data);
+          console.log("parsed entries:", entries);
+          this.cryptoList = entries;
+        },
+        error: (err) => console.error(`Fetch error for ${codes}:`, err)
+      })
+    );
   }
+  
 
   parseSingleEntry(raw: any, code: string, date: string): CryptoEntry | null {
     const rows: any[] = raw?.datatable?.data || [];
@@ -93,27 +97,35 @@ export class HomeComponent implements OnInit, OnDestroy {
     return {
       code: code,
       date: row[1],
-      open: row[2],
-      close: row[3],
-      high: row[4],
-      low: row[5],
-      volume: row[6],
+      high: row[2],
+      low: row[3],
+      mid: row[4],
+      last: row[5],
+      bid: row[6],
+      ask: row[7],
+      volume: row[8],
       iconUrl: this.lookUpIconUrl(code)
     };
   }
 
-  parseCryptoEntries(raw: any, code: string): CryptoEntry[] {
+  parseCryptoEntries(raw: any): CryptoEntry[] {
     const rows = raw?.datatable?.data || [];
-    return rows.map((row: any[]) => ({
-      code: code,
-      date: row[1],
-      open: row[2],
-      close: row[3],
-      high: row[4],
-      low: row[5],
-      volume: row[6],
-      iconUrl: this.lookUpIconUrl(code)
-    } as CryptoEntry));
+
+    return rows.map((row: any[]) => {
+      const code = row[0]; // 0th index now contains the code (e.g., BTCUSD)
+      return {
+        code: code,
+        date: row[1],
+        high: row[2],
+        low: row[3],
+        mid: row[4],
+        last: row[5],
+        bid: row[6],
+        ask: row[7],
+        volume: row[8],
+        iconUrl: this.lookUpIconUrl(code)
+      } as CryptoEntry;
+    });
   }
 
   lookUpIconUrl(symbol: string): string {
@@ -123,6 +135,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       ZRXUSD: 'assets/icons/zrx.svg'
     };
     return map[symbol] || 'assets/icons/generic.svg';
+  }
+
+  get columnHeaders(): string[] {
+    return this.columnDefs.map(col => col.key);
   }
 
   ngOnDestroy() {
