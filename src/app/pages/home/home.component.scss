@@ -17,3 +17,16 @@
 .mat-mdc-row:hover .mat-mdc-cell {
     background: rgba(0, 0, 0, 0.05);
 }
+
+.home-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; // spacing between cards
+}
+
+.top-crypto-item {
+    // font-size: var(--mdc-list-list-item-label-text-size, var(--mat-sys-body-large-size));
+    min-height: 48px; // Following Angular Material style
+    align-content: center;
+    font-size: var(--mat-table-row-item-label-text-size, var(--mat-sys-body-medium-size, 14px));
+}

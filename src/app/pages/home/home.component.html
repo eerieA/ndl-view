@@ -1,28 +1,50 @@
-<mat-card *ngIf="cryptoList.length > 0">
-    <mat-table [dataSource]="cryptoList" class="mat-elevation-z2">
+<div class="home-cards-container">
 
-        <!-- Dynamically create columns -->
-        <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.key">
-            <mat-header-cell *matHeaderCellDef> {{ col.label }} </mat-header-cell>
-            <mat-cell *matCellDef="let entry">
-                <ng-container [ngSwitch]="col.key">
+    <mat-card *ngIf="isBrowser && topCryptos.length > 0">
+        <!-- Some Angular Material components rely on window, document etc so we need to check if isBrowser -->
+        <mat-card-header>
+            <mat-card-title>Top Highest Priced Cryptos</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <mat-list>
+                <div *ngFor="let entry of topCryptos" class="top-crypto-item">
+                    <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
+                    {{ entry.code }} - {{ entry.last | currency }}
+                </div>
+            </mat-list>
+        </mat-card-content>
+    </mat-card>
 
-                    <!-- Icon + Code for 'code' column -->
-                    <ng-container *ngSwitchCase="'code'">
-                        <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
-                        {{ entry.code }}
+    <mat-card *ngIf="cryptoList.length > 0">
+        <mat-card-header>
+            <mat-card-title>List of Cryptos</mat-card-title>
+        </mat-card-header>
+        <mat-table [dataSource]="cryptoList" class="mat-elevation-z2">
+
+            <!-- Dynamically create columns -->
+            <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.key">
+                <mat-header-cell *matHeaderCellDef> {{ col.label }} </mat-header-cell>
+                <mat-cell *matCellDef="let entry">
+                    <ng-container [ngSwitch]="col.key">
+
+                        <!-- Icon + Code for 'code' column -->
+                        <ng-container *ngSwitchCase="'code'">
+                            <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
+                            {{ entry.code }}
+                        </ng-container>
+
+                        <!-- Default rendering for other columns -->
+                        <ng-container *ngSwitchDefault>
+                            {{ entry[col.key] }}
+                        </ng-container>
+
                     </ng-container>
+                </mat-cell>
+            </ng-container>
 
-                    <!-- Default rendering for other columns -->
-                    <ng-container *ngSwitchDefault>
-                        {{ entry[col.key] }}
-                    </ng-container>
+            <mat-header-row *matHeaderRowDef="columnHeaders"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: columnHeaders"></mat-row>
+        </mat-table>
+    </mat-card>
 
-                </ng-container>
-            </mat-cell>
-        </ng-container>
-
-        <mat-header-row *matHeaderRowDef="columnHeaders"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: columnHeaders"></mat-row>
-    </mat-table>
-</mat-card>
+</div>

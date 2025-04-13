@@ -7,10 +7,11 @@ import { CryptoEntry } from '../../models/crypto-entry.model'
 import { FormsModule } from '@angular/forms'; // for [(ngModel)]
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
+import { MatList } from '@angular/material/list';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule],
+  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule, MatList],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -27,8 +28,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     { key: 'bid', label: 'Bid' },
     { key: 'ask', label: 'Ask' },
     { key: 'volume', label: 'Volume' }
-  ];  
+  ];
   cryptoList: CryptoEntry[] = [];
+  topCryptos: CryptoEntry[] = [];
   // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
   cryptoOptions = ['BTCUSD', 'ETHUSD', 'ZRXUSD', 'mock'];
 
@@ -85,8 +87,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         error: (err) => console.error(`Fetch error for ${codes}:`, err)
       })
     );
+
+    // After data is loaded, update the top few highest priced cryptos
+    this.getTopCryptos();
+    console.log("topCryptos:", this.topCryptos);
   }
-  
 
   parseSingleEntry(raw: any, code: string, date: string): CryptoEntry | null {
     const rows: any[] = raw?.datatable?.data || [];
@@ -126,6 +131,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         iconUrl: this.lookUpIconUrl(code)
       } as CryptoEntry;
     });
+  }
+
+  // Parse and sort the top 5 highest priced cryptos
+  getTopCryptos() {
+    this.topCryptos = this.cryptoList
+      .sort((a, b) => b.last - a.last)  // Sort by 'last' price in descending order
+      .slice(0, 5);  // Take the top 5
   }
 
   lookUpIconUrl(symbol: string): string {
