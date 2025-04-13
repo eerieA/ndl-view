@@ -1,10 +1,10 @@
 # NdlView
 
-This project is a UI built upon [Nasdaq Data Link API](https://data.nasdaq.com/tools/api), crypto currency table endpoint.
+This project is a web UI facading [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint.
 
 ## Development server
 
-Using a super simple express backend to hide API key from browser.
+Using a super simple Express backend to hide API key from browser, and provide mock data for frontend iterations.
 
 Frontend `ng serve`.
 
