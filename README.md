@@ -2,13 +2,13 @@
 
 This project is a web UI facading [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint.
 
-## Development server
+## Development
 
 Using a super simple Express backend to hide API key from browser, and provide mock data for frontend iterations.
 
 Frontend `ng serve`.
 
-Backend `cd api` then `npm start`.
+Backend `cd api` then `npm run dev`. This uses Nodemon for hot reloading.
 
 ## Acknowledgements
 

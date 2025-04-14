@@ -1,0 +1,12 @@
+{
+    "watch": [
+        "index.ts",
+        "routes",
+        "controllers",
+        "services"
+    ],
+    "ext": "ts",
+    "exec": "ts-node index.ts",
+    "verbose": true,
+    "restartable": "rs"
+}
