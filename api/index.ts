@@ -46,10 +46,20 @@ app.get('/api/crypto', async (req, res) => {
   try {
     const cleanedCode = codeArray.join(',');  // Extra safty measure in parsing
     const url = `${NDL_BASE_URL}?code=${cleanedCode}&date.gte=${from}&date.lte=${to}&api_key=${NDL_API_KEY}`;
-    console.log('Proxying to:', url); // helpful for debugging
+    console.log('Proxying to:', url);
 
-    const response = await axios.get(url); // Axios automatically uses HTTPS
-    res.json(response.data);
+    const response = await axios.get(url);
+
+    // Relay select headers (NDL rate limit info)
+    const selectedHeaders = ['x-ratelimit-limit', 'x-ratelimit-remaining'];
+    for (const headerName of selectedHeaders) {
+      const headerValue = response.headers[headerName];
+      if (headerValue !== undefined) {
+        res.setHeader(headerName, headerValue);
+      }
+    }
+
+    res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error fetching data from Nasdaq:', error);
     res.status(500).json({ error: 'Failed to fetch data from upstream API' });
@@ -172,7 +182,10 @@ app.get('/mock-api/crypto-multi', (req: Request, res: Response) => {
     }
   };
 
-  res.json(dummyData);
+  // Simulate rate limit headers like NDL
+  res.setHeader('x-ratelimit-limit', '100');
+  res.setHeader('x-ratelimit-remaining', '98');
+  res.status(200).json(dummyData);
 });
 
 app.listen(port, () => {

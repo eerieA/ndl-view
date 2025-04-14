@@ -10,10 +10,13 @@ export class NdlService {
     private http: HttpClient
   ) { }
 
-  getCryptoData(code: string, startDate: string, endDate: string): Observable<any> {
+  getCryptoData(code: string, startDate: string, endDate: string): Observable<{ data: any, headers: any }> {
     const url = `/api/crypto?code=${code}&from=${startDate}&to=${endDate}`;
-    return this.http.get(url).pipe(
-      map((response) => response),
+    return this.http.get(url, { observe: 'response' }).pipe(
+      map((response) => ({
+        data: response.body,
+        headers: response.headers
+      })),
       catchError((error) => {
         console.error('Crypto data fetch error:', error);
         return throwError(() => error);

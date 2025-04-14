@@ -1,3 +1,4 @@
+<!-- main region -->
 <div class="home-cards-container">
 
     <div class="top-row">
@@ -80,3 +81,8 @@
     </div>
 
 </div>
+
+<!-- Rate limit info card -->
+<mat-card class="rate-limit-panel" *ngIf="rateLimitInfo">
+    API: {{ rateLimitInfo.remaining }}/{{ rateLimitInfo.limit }}
+</mat-card>

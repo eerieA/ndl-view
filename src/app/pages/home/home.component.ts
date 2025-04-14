@@ -37,6 +37,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     sentiment: 'Loading...',
     sentimentScore: 50,
   };
+  rateLimitInfo = {
+    remaining: 0,
+    limit: 0,
+  }
   cryptoList: CryptoEntry[] = [];
   topCryptos: CryptoEntry[] = [];
   // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
@@ -87,9 +91,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.sub.add(
       this.ndlService.getCryptoData(codes, start, end).subscribe({
-        next: (data) => {
-          const entries = this.parseCryptoEntries(data);
+        next: (response) => {
+          const entries = this.parseCryptoEntries(response.data);
           this.cryptoList = entries;
+          this.rateLimitInfo.limit = response.headers.get('x-ratelimit-limit');
+          this.rateLimitInfo.remaining = response.headers.get('x-ratelimit-remaining');
         },
         error: (err) => console.error(`Fetch error for ${codes}:`, err)
       })

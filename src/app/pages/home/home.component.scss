@@ -18,6 +18,18 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
+.rate-limit-panel {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px 12px;
+    font-size: var(--mat-table-row-item-label-text-size, var(--mat-sys-body-medium-size, 14px));
+    border-radius: 8px;
+    z-index: 1000;
+    opacity: 0.9;
+}
+
 .home-cards-container {
     display: flex;
     flex-direction: column;
