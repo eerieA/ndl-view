@@ -41,8 +41,16 @@
         flex-wrap: wrap;
         gap: 16px;
 
-        .top-crypto-card .market-summary-card .sentiment-gauge-card {
-            flex: 1 1 100%; // allow it to grow and shrink
+        /* For all mat card in this container */
+        mat-card {
+            flex: 2 1 0;    // flex grow is 2
+            min-width: 150px;
+        }
+
+        /* The third card only */
+        mat-card:nth-child(3),
+        .sentiment-gauge-card {
+            flex: 1 1 0;    // flex grow is Half of the others
         }
 
         .sentiment-gauge-card {
@@ -61,7 +69,7 @@
         .top-row {
             flex-direction: column;
 
-            .top-crypto-card .market-summary-card .sentiment-gauge-card {
+            mat-card {
                 flex: 1 1 100%;
             }
         }
