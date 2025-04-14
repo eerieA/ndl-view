@@ -21,10 +21,48 @@
 .home-cards-container {
     display: flex;
     flex-direction: column;
-    gap: 16px; // spacing between cards
+    gap: 24px;
+    padding: 16px;
+
+    .top-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+
+        .top-crypto-card .market-summary-card .sentiment-gauge-card {
+            flex: 1 1 100%; // allow it to grow and shrink
+        }
+
+        .sentiment-gauge-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+
+            ngx-gauge {
+                margin-top: 12px;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        .top-row {
+            flex-direction: column;
+
+            .top-crypto-card .market-summary-card .sentiment-gauge-card {
+                flex: 1 1 100%;
+            }
+        }
+    }
+
+    .bottom-row {
+        .crypto-list-card {
+            width: 100%;
+        }
+    }
 }
 
-.top-crypto-item {
+.plain-list-item {
     // font-size: var(--mdc-list-list-item-label-text-size, var(--mat-sys-body-large-size));
     min-height: 48px; // Following Angular Material style
     align-content: center;

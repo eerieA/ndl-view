@@ -1,50 +1,82 @@
 <div class="home-cards-container">
 
-    <mat-card *ngIf="isBrowser && topCryptos.length > 0">
-        <!-- Some Angular Material components rely on window, document etc so we need to check if isBrowser -->
-        <mat-card-header>
-            <mat-card-title>Top Highest Priced Cryptos</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <mat-list>
-                <div *ngFor="let entry of topCryptos" class="top-crypto-item">
-                    <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
-                    {{ entry.code }} - {{ entry.last | currency }}
+    <div class="top-row">
+        <mat-card *ngIf="isBrowser && topCryptos.length > 0">
+            <!-- Some Angular Material components rely on window, document etc so we need to check if isBrowser -->
+            <mat-card-header>
+                <mat-card-title>Top Highest Priced Cryptos</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-list>
+                    <div *ngFor="let entry of topCryptos" class="plain-list-item">
+                        <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
+                        {{ entry.code }} - {{ entry.last | currency }}
+                    </div>
+                </mat-list>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="market-summary-card" *ngIf="isBrowser && marketSummary.sentiment !== 'Loading...'">
+            <mat-card-header>
+                <mat-card-title>Market Overview</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-list>
+                    <div class="plain-list-item">Avg Momentum: {{ marketSummary.avgMomentum | number:'1.2-2' }}</div>
+                    <div class="plain-list-item">Avg Spread: {{ marketSummary.avgSpread | percent:'1.2-2' }}</div>
+                    <div class="plain-list-item">Total Volume: {{ marketSummary.totalVolume | number }}</div>
+                </mat-list>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card *ngIf="isBrowser && marketSummary.sentiment !== 'Loading...'" class="sentiment-gauge-card">
+            <mat-card-header>
+                <mat-card-title>Sentiment</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div style="text-align: center; margin-bottom: 2px;">
+                  {{ marketSummary.sentiment }}
                 </div>
-            </mat-list>
-        </mat-card-content>
-    </mat-card>
+                <ngx-gauge [value]="marketSummary.sentimentScore" [label]="''" [append]="'%'"
+                    [type]="'full'" [thick]="8" [foregroundColor]="gaugeColor(marketSummary.sentimentScore)"
+                    [size]="150">
+                </ngx-gauge>
+            </mat-card-content>
+        </mat-card>
+    </div>
 
-    <mat-card *ngIf="cryptoList.length > 0">
-        <mat-card-header>
-            <mat-card-title>List of Cryptos</mat-card-title>
-        </mat-card-header>
-        <mat-table [dataSource]="cryptoList" class="mat-elevation-z2">
+    <div class="bottom-row">
+        <mat-card *ngIf="cryptoList.length > 0">
+            <mat-card-header>
+                <mat-card-title>List of Cryptos</mat-card-title>
+            </mat-card-header>
+            <mat-table [dataSource]="cryptoList" class="mat-elevation-z2">
 
-            <!-- Dynamically create columns -->
-            <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.key">
-                <mat-header-cell *matHeaderCellDef> {{ col.label }} </mat-header-cell>
-                <mat-cell *matCellDef="let entry">
-                    <ng-container [ngSwitch]="col.key">
+                <!-- Dynamically create columns -->
+                <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.key">
+                    <mat-header-cell *matHeaderCellDef> {{ col.label }} </mat-header-cell>
+                    <mat-cell *matCellDef="let entry">
+                        <ng-container [ngSwitch]="col.key">
 
-                        <!-- Icon + Code for 'code' column -->
-                        <ng-container *ngSwitchCase="'code'">
-                            <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
-                            {{ entry.code }}
+                            <!-- Icon + Code for 'code' column -->
+                            <ng-container *ngSwitchCase="'code'">
+                                <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
+                                {{ entry.code }}
+                            </ng-container>
+
+                            <!-- Default rendering for other columns -->
+                            <ng-container *ngSwitchDefault>
+                                {{ entry[col.key] }}
+                            </ng-container>
+
                         </ng-container>
+                    </mat-cell>
+                </ng-container>
 
-                        <!-- Default rendering for other columns -->
-                        <ng-container *ngSwitchDefault>
-                            {{ entry[col.key] }}
-                        </ng-container>
-
-                    </ng-container>
-                </mat-cell>
-            </ng-container>
-
-            <mat-header-row *matHeaderRowDef="columnHeaders"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: columnHeaders"></mat-row>
-        </mat-table>
-    </mat-card>
+                <mat-header-row *matHeaderRowDef="columnHeaders"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: columnHeaders"></mat-row>
+            </mat-table>
+        </mat-card>
+    </div>
 
 </div>
