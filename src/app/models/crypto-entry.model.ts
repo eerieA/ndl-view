@@ -11,7 +11,7 @@ export class CryptoEntry {
         public readonly volume: number,
         public readonly iconUrl: string
     ) {
-        if (high <= low) throw new Error(`Invalid range: high (${high}) should be > low (${low})`);
+        if (high < low) throw new Error(`Invalid range: high (${high}) should be >= low (${low})`);
         if (mid <= 0) throw new Error(`Invalid range: mid ${mid} is leq 0`);
     }
 
