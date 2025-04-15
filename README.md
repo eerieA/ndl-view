@@ -2,6 +2,14 @@
 
 This project is a web UI facading [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint.
 
+## Features
+
+A list of what this app does.
+
+- Displays a list of cryptos with info from previous day.
+- Displays a ranked "top 5" list based on previous day's prices.
+- Displays simple market summary statistics from previous day.
+
 # Docs
 
 ## Development server
