@@ -111,22 +111,22 @@ export class HomeComponent implements OnInit, OnDestroy {
   parseCryptoEntries(raw: any): CryptoEntry[] {
     const rows = raw?.datatable?.data || [];
 
-    return rows.map((row: any[]) => {
-      const code = row[0]; // 0th index now contains the code (e.g., BTCUSD)
-      const symbol = code.slice(0, -3);
-      return {
-        code: code,
-        date: row[1],
-        high: row[2],
-        low: row[3],
-        mid: row[4],
-        last: row[5],
-        bid: row[6],
-        ask: row[7],
-        volume: row[8],
-        iconUrl: this.lookUpIconUrl(symbol)
-      } as CryptoEntry;
-    });
+    const entries: CryptoEntry[] = [];
+
+    for (const row of rows) {
+      try {
+        const code = row[0];
+        const symbol = code.slice(0, -3);
+        const iconUrl = this.lookUpIconUrl(symbol);
+        const entry = CryptoEntry.parseApiRow(row, iconUrl);
+        entries.push(entry);
+      } catch (err) {
+        // Mainly to catch errors from CryptoEntry's row parser
+        console.warn('Skipping invalid row:', row, 'due to:' , err);
+      }
+    }
+
+    return entries;
   }
 
   // Parse and sort the top 5 highest priced cryptos
@@ -148,9 +148,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     Simple sum of all retrieved entry's volumn. Roughly means high / low trading activity.
   Use 1, 2 and 3 to make an sentiment label.*/
   private calculateMarketSummary(entries: CryptoEntry[]) {
-    const valid = entries.filter(e => e.high > e.low && e.mid > 0);
+    const valid = entries.filter(e => e.isValid);
     const n = valid.length;
-
     if (n === 0) return;
 
     let momentumSum = 0;
@@ -158,11 +157,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     let volumeSum = 0;
 
     for (const entry of valid) {
-      const momentum = (entry.last - entry.low) / (entry.high - entry.low);
-      const spread = (entry.ask - entry.bid) / entry.mid;
-
-      momentumSum += momentum;
-      spreadSum += spread;
+      momentumSum += entry.momentum;
+      spreadSum += entry.spread;
       volumeSum += entry.volume;
     }
 
@@ -171,11 +167,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     const totalVolume = volumeSum;
 
     // Normalize each factor to [0, 1] range
-    const normMomentum = Math.max(0, Math.min(1, avgMomentum)); // already in 0–1
-    const normSpread = 1 - Math.min(1, avgSpread / 0.05);        // high spread → fear
-    const normVolume = Math.min(1, Math.log10(totalVolume + 1) / 10); // scaled log volume
+    const normMomentum = Math.max(0, Math.min(1, avgMomentum));
+    const normSpread = 1 - Math.min(1, avgSpread / 0.05);
+    const normVolume = Math.min(1, Math.log10(totalVolume + 1) / 10);
 
-    // Weighted score. Weights are arbitrary, change if needed
+    // Use weighted average for sentiment score. Weights are arbitrary
     const score = (
       normMomentum * 0.5 +
       normSpread * 0.3 +
