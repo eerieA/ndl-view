@@ -1,5 +1,15 @@
 <!-- main region -->
 <div class="home-cards-container">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>Watchlist</mat-card-title>
+        </mat-card-header>
+        <mat-card-content *ngIf="watchlist.length > 0; else noWatchlist">
+            <div *ngFor="let entry of watchlist" class="plain-list-item">
+                {{ entry.code }}
+            </div>
+        </mat-card-content>
+    </mat-card>
 
     <div class="top-row">
         <mat-card *ngIf="isBrowser && topCryptos.length > 0">
@@ -12,6 +22,8 @@
                     <div *ngFor="let entry of topCryptos" class="plain-list-item">
                         <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
                         {{ entry.code }} - {{ entry.last | currency }}
+                        <button (click)="addToWatchlist(entry)" *ngIf="!isWatched(entry.code)">Watch</button>
+                        <button (click)="removeFromWatchlist(entry.code)" *ngIf="isWatched(entry.code)">Unwatch</button>
                     </div>
                 </mat-list>
             </mat-card-content>
@@ -36,11 +48,10 @@
             </mat-card-header>
             <mat-card-content>
                 <div style="text-align: center; margin-bottom: 2px;">
-                  {{ marketSummary.sentiment }}
+                    {{ marketSummary.sentiment }}
                 </div>
-                <ngx-gauge [value]="marketSummary.sentimentScore" [label]="''" [append]="'%'"
-                    [type]="'full'" [thick]="8" [foregroundColor]="gaugeColor(marketSummary.sentimentScore)"
-                    [size]="150">
+                <ngx-gauge [value]="marketSummary.sentimentScore" [label]="''" [append]="'%'" [type]="'full'"
+                    [thick]="8" [foregroundColor]="gaugeColor(marketSummary.sentimentScore)" [size]="150">
                 </ngx-gauge>
             </mat-card-content>
         </mat-card>
@@ -86,3 +97,12 @@
 <mat-card class="rate-limit-panel" *ngIf="rateLimitInfo">
     API limit: {{ rateLimitInfo.remaining }}/{{ rateLimitInfo.limit }}
 </mat-card>
+
+<!-- Watchlist card when no item -->
+<ng-template #noWatchlist>
+    <mat-card-content>
+        <div class="plain-list-item">
+            Not watching anything yet -_-
+        </div>
+    </mat-card-content>
+</ng-template>

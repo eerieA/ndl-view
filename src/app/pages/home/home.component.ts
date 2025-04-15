@@ -2,7 +2,9 @@ import { Component, inject, Inject, OnInit, OnDestroy, PLATFORM_ID } from '@angu
 import { isPlatformBrowser, CommonModule } from '@angular/common'; // Import this
 import { Subscription, filter, take } from 'rxjs';
 import { NdlService } from '../../services/ndl.service';
+import { WatchlistService } from '../../services/watchlist.service';
 import { CryptoEntry } from '../../models/crypto-entry.model'
+import { WatchlistEntry } from '../../models/watchlist-entry.model'
 
 import { FormsModule } from '@angular/forms'; // for [(ngModel)]
 import { MatTableModule } from '@angular/material/table';
@@ -18,6 +20,7 @@ import { NgxGaugeModule } from 'ngx-gauge';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
+  private wlService = inject(WatchlistService);
 
   columnDefs = [
     { key: 'code', label: 'Symbol', icon: true },
@@ -43,6 +46,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   cryptoList: CryptoEntry[] = [];
   topCryptos: CryptoEntry[] = [];
+  watchlist: WatchlistEntry[] = [];
   // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
   // cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'RRTUSD', 'ZECUSD', 'ZECBTC', 'XMRUSD', 'XMRBTC', 'DSHUSD', 'DSHBTC', 'BTCEUR', 'BTCJPY', 'XRPUSD', 'XRPBTC', 'IOTUSD', 'IOTBTC', 'EOSUSD', 'EOSBTC', 'OMGUSD', 'OMGBTC', 'NEOUSD', 'MNAUSD', 'ZRXUSD', 'TRXUSD', 'TRXBTC', 'BTCGBP', 'ETHEUR', 'ETHJPY', 'ETHGBP', 'DAIUSD', 'XLMUSD', 'XLMBTC', 'MKRUSD', 'XTZUSD'];
   cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'mock'];
@@ -77,6 +81,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // Now that API key is no longer needed on frontend, load data directly
     this.loadData();
+    // After loading data there can be watchlist, add to the same sub manager
+    this.sub.add(
+      this.wlService.watchlist$.subscribe(w => {
+        this.watchlist = w;
+      })
+    );
   }
 
   loadData() {
@@ -215,6 +225,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   lookUpIconUrl(symbol: string): string {
     const lowerSymbol = symbol.toLowerCase();
     return `assets/icons/${lowerSymbol}.svg`;
+  }
+
+  addToWatchlist(entry: CryptoEntry) {
+    this.wlService.add({ code: entry.code });
+  }
+  
+  removeFromWatchlist(code: string) {
+    this.wlService.remove(code);
+  }
+  
+  isWatched(code: string): boolean {
+    return this.wlService.isWatched(code);
   }
 
   gaugeColor(score: number): string {
