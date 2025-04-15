@@ -44,7 +44,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   cryptoList: CryptoEntry[] = [];
   topCryptos: CryptoEntry[] = [];
   // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
-  cryptoOptions = ['BTCUSD', 'ETHUSD', 'ZRXUSD', 'mock'];
+  // cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'RRTUSD', 'ZECUSD', 'ZECBTC', 'XMRUSD', 'XMRBTC', 'DSHUSD', 'DSHBTC', 'BTCEUR', 'BTCJPY', 'XRPUSD', 'XRPBTC', 'IOTUSD', 'IOTBTC', 'EOSUSD', 'EOSBTC', 'OMGUSD', 'OMGBTC', 'NEOUSD', 'MNAUSD', 'ZRXUSD', 'TRXUSD', 'TRXBTC', 'BTCGBP', 'ETHEUR', 'ETHJPY', 'ETHGBP', 'DAIUSD', 'XLMUSD', 'XLMBTC', 'MKRUSD', 'XTZUSD'];
+  cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'mock'];
 
   chartData: any = [];
   chartOptions: any = {};
@@ -81,7 +82,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadData() {
     console.log("loadData");
 
-    const targetDate = '2025-03-07';
+    // To be safe, target date is 2 days before today
+    const targetDate = this.getPastDateString(2);
+    console.log("targetDate:", targetDate);
     const start = targetDate;
     const end = targetDate;
 
@@ -179,11 +182,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     ) * 100;
 
     // Sentiment label
-    let sentiment = 'Neutral';
-    if (score >= 70) {
-      sentiment = 'Greedy';
-    } else if (score <= 30) {
+    let sentiment = 'Greedy';
+    if (score < 25) {
       sentiment = 'Fearful';
+    } else if (score < 50) {
+      sentiment = 'Caution';
+    } else if (score < 75) {
+      sentiment = 'Neutral';
     }
 
     this.marketSummary = {
@@ -193,6 +198,18 @@ export class HomeComponent implements OnInit, OnDestroy {
       sentiment,
       sentimentScore: Math.round(score)
     };
+  }
+
+  private getPastDateString(n: number): string {
+    const today = new Date();
+    const pastDate = new Date(today);
+    pastDate.setDate(today.getDate() - n);
+
+    const yyyy = pastDate.getFullYear();
+    const mm = String(pastDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(pastDate.getDate()).padStart(2, '0');
+
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   lookUpIconUrl(symbol: string): string {
