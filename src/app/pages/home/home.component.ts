@@ -62,7 +62,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-
   ngOnInit(): void {
     if (this.isBrowser) {
       // Initialize chart and other client-side logic
@@ -81,6 +80,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // Now that API key is no longer needed on frontend, load data directly
     this.loadData();
+
+    this.wlService.getWatchlist();
     // After loading data there can be watchlist, add to the same sub manager
     this.sub.add(
       this.wlService.watchlist$.subscribe(w => {
@@ -229,6 +230,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   addToWatchlist(entry: CryptoEntry) {
     this.wlService.add({ code: entry.code });
+    console.log("watchlist frontend:", this.watchlist);
   }
 
   removeFromWatchlist(code: string) {

@@ -3,8 +3,11 @@ import axios from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import { writeWatchlist, readWatchlist } from './storage';
+
 dotenv.config();
 const app = express();
+app.use(express.json());
 const port = process.env.PORT || 3000;
 
 // For local dev only
@@ -230,6 +233,61 @@ app.get('/mock-api/crypto-multi', (req: Request, res: Response) => {
   res.setHeader('x-ratelimit-limit', '100');
   res.setHeader('x-ratelimit-remaining', '98');
   res.status(200).json(dummyData);
+});
+
+app.get('/api/watchlist', async (req, res) => {
+  try {
+    const watchlist = await readWatchlist();
+    res.json(watchlist);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load watchlist' });
+  }
+});
+
+app.post('/api/watchlist', async (req, res) => {
+  try {
+    const newWatchlist = req.body;
+    if (!Array.isArray(newWatchlist)) {
+      res.status(400).json({ error: 'Invalid watchlist format' });
+      return;
+    }
+
+    await writeWatchlist(newWatchlist);
+    res.status(200).json({ message: 'Watchlist updated' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update watchlist' });
+  }
+});
+
+app.patch('/api/watchlist', async (req, res) => {
+  const { code, action } = req.body;
+
+  if (!code || !['add', 'remove'].includes(action)) {
+    res.status(400).json({ error: 'Invalid payload' });
+    return;
+  }
+
+  try {
+    const current = await readWatchlist();
+    const exists = current.find(e => e.code === code);
+
+    let updated;
+
+    if (action === 'add' && !exists) {
+      updated = [...current, { code }];
+    } else if (action === 'remove' && exists) {
+      updated = current.filter(e => e.code !== code);
+    } else {
+      res.status(200).json({ message: 'No changes made' }); // nothing to update
+      return;
+    }
+
+    await writeWatchlist(updated);
+    res.status(200).json({ message: 'Watchlist updated' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error updating watchlist' });
+  }
 });
 
 app.listen(port, () => {
