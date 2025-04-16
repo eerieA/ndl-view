@@ -135,7 +135,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         entries.push(entry);
       } catch (err) {
         // Mainly to catch errors from CryptoEntry's row parser
-        console.warn('Skipping invalid row:', row, 'due to:' , err);
+        console.warn('Skipping invalid row:', row, 'due to:', err);
       }
     }
 
@@ -230,13 +230,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   addToWatchlist(entry: CryptoEntry) {
     this.wlService.add({ code: entry.code });
   }
-  
+
   removeFromWatchlist(code: string) {
     this.wlService.remove(code);
   }
-  
+
   isWatched(code: string): boolean {
     return this.wlService.isWatched(code);
+  }
+
+  get watchlistEnriched(): CryptoEntry[] {
+    return this.watchlist
+      .map(w => this.cryptoList.find(c => c.code === w.code))
+      .filter((e): e is CryptoEntry => !!e); // filters out undefined
   }
 
   gaugeColor(score: number): string {

@@ -4,8 +4,9 @@
         <mat-card-header>
             <mat-card-title>Watchlist</mat-card-title>
         </mat-card-header>
-        <mat-card-content *ngIf="watchlist.length > 0; else noWatchlist">
-            <div *ngFor="let entry of watchlist" class="plain-list-item">
+        <mat-card-content *ngIf="watchlistEnriched.length > 0; else noWatchlist">
+            <div *ngFor="let entry of watchlistEnriched" class="plain-list-item">
+                <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" />
                 {{ entry.code }}
             </div>
         </mat-card-content>
@@ -20,7 +21,7 @@
             <mat-card-content>
                 <mat-list>
                     <div *ngFor="let entry of topCryptos" class="plain-list-item">
-                        <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
+                        <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" />
                         {{ entry.code }} - {{ entry.last | currency }}
                         <button (click)="addToWatchlist(entry)" *ngIf="!isWatched(entry.code)">Watch</button>
                         <button (click)="removeFromWatchlist(entry.code)" *ngIf="isWatched(entry.code)">Unwatch</button>
@@ -72,7 +73,7 @@
 
                             <!-- Icon + Code for 'code' column -->
                             <ng-container *ngSwitchCase="'code'">
-                                <img [src]="entry.iconUrl" [alt]="entry.code" width="20" height="20" />
+                                <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" />
                                 {{ entry.code }}
                             </ng-container>
 

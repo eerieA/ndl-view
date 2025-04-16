@@ -43,14 +43,14 @@
 
         /* For all mat card in this container */
         mat-card {
-            flex: 2 1 0;    // flex grow is 2
+            flex: 2 1 0; // flex grow is 2
             min-width: 150px;
         }
 
         /* The third card only */
         mat-card:nth-child(3),
         .sentiment-gauge-card {
-            flex: 1 1 0;    // flex grow is Half of the others
+            flex: 1 1 0; // flex grow is Half of the others
         }
 
         .sentiment-gauge-card {
@@ -87,4 +87,11 @@
     min-height: 48px; // Following Angular Material style
     align-content: center;
     font-size: var(--mat-table-row-item-label-text-size, var(--mat-sys-body-medium-size, 14px));
+}
+
+.crypto-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
+    vertical-align: middle;
 }
