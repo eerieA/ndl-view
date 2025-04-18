@@ -18,6 +18,16 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
+.mat-mdc-unelevated-button {
+    height: var(--mdc-filled-button-container-height, 32px);
+    padding: 0 var(--mat-filled-button-horizontal-padding, 16px);
+}
+
+.mat-mdc-outlined-button {
+    height: var(--mdc-filled-button-container-height, 32px);
+    padding: 0 var(--mat-filled-button-horizontal-padding, 16px);
+}
+
 .rate-limit-panel {
     position: fixed;
     bottom: 16px;
@@ -92,6 +102,20 @@
 .crypto-tabs {
     margin-top: 4px;
     margin-left: 0px; // aligns with card edge
+}
+
+.crypto-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; // pushes buttons to the right
+    padding: 8px 0;
+    font-size: var(--mat-table-row-item-label-text-size, var(--mat-sys-body-medium-size, 14px));
+}
+
+.crypto-info {
+    display: flex;
+    align-items: center;
+    gap: 8px; // space between icon and text
 }
 
 .crypto-icon {

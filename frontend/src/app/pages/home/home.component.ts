@@ -11,11 +11,12 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatList } from '@angular/material/list';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
+import { MatButtonModule } from '@angular/material/button';
 import { NgxGaugeModule } from 'ngx-gauge';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule, MatList, MatTabGroup, MatTab, NgxGaugeModule],
+  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule, MatList, MatTabGroup, MatTab, MatButtonModule, NgxGaugeModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

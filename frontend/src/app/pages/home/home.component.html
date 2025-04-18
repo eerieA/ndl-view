@@ -20,11 +20,17 @@
             </mat-card-header>
             <mat-card-content>
                 <mat-list>
-                    <div *ngFor="let entry of topCryptos" class="plain-list-item">
+                    <div *ngFor="let entry of topCryptos" class="crypto-row">
+                        <div class="crypto-info">
                         <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" />
                         {{ entry.code }} - {{ entry.last | currency }}
-                        <button (click)="addToWatchlist(entry)" *ngIf="!isWatched(entry.code)">Watch</button>
-                        <button (click)="removeFromWatchlist(entry.code)" *ngIf="isWatched(entry.code)">Unwatch</button>
+                        </div>
+                        <button mat-flat-button (click)="addToWatchlist(entry)" *ngIf="!isWatched(entry.code)">
+                            Watch
+                        </button>
+                        <button mat-stroked-button (click)="removeFromWatchlist(entry.code)"
+                            *ngIf="isWatched(entry.code)">Unwatch
+                        </button>
                     </div>
                 </mat-list>
             </mat-card-content>
