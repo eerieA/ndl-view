@@ -1,0 +1,10 @@
+{
+  "name": "ndl-view",
+  "version": "0.0.0",
+  "scripts": {
+    "cp-mdl": "node scripts/copy-shared-models.js"
+  },
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,5 +1,5 @@
 {
-  "name": "ndl-view",
+  "name": "ndl-view-frontend",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
