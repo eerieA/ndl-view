@@ -239,6 +239,15 @@ app.get('/mock-api/crypto-multi', (req: Request, res: Response) => {
 app.get('/api/watchlist', async (req, res) => {
   try {
     const watchlist = await readWatchlist();
+
+    if (
+      !Array.isArray(watchlist) ||
+      !watchlist.every(isValidWatchlistEntry)
+    ) {
+      res.status(500).json({ error: 'Corrupted watchlist format fron server' });
+      return;
+    }
+
     res.json(watchlist);
   } catch (err) {
     res.status(500).json({ error: 'Failed to load watchlist' });
