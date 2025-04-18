@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import { writeWatchlist, readWatchlist } from './storage';
+import { isValidWatchlistEntry } from './models/validators';
 
 dotenv.config();
 const app = express();
@@ -247,7 +248,8 @@ app.get('/api/watchlist', async (req, res) => {
 app.post('/api/watchlist', async (req, res) => {
   try {
     const newWatchlist = req.body;
-    if (!Array.isArray(newWatchlist)) {
+    if (!Array.isArray(newWatchlist) ||
+      !newWatchlist.every(isValidWatchlistEntry)) {
       res.status(400).json({ error: 'Invalid watchlist format' });
       return;
     }
@@ -264,6 +266,11 @@ app.patch('/api/watchlist', async (req, res) => {
 
   if (!code || !['add', 'remove'].includes(action)) {
     res.status(400).json({ error: 'Invalid payload' });
+    return;
+  }
+
+  if (!isValidWatchlistEntry({ code })) {
+    res.status(400).json({ error: 'Invalid watchList entry' });
     return;
   }
 
@@ -291,5 +298,5 @@ app.patch('/api/watchlist', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at: ${LOCAL_BASE_URL}`);
 });
