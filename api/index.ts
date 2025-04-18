@@ -244,7 +244,7 @@ app.get('/api/watchlist', async (req, res) => {
       !Array.isArray(watchlist) ||
       !watchlist.every(isValidWatchlistEntry)
     ) {
-      res.status(500).json({ error: 'Corrupted watchlist format fron server' });
+      res.status(500).json({ error: 'Corrupted watchlist format from server' });
       return;
     }
 
