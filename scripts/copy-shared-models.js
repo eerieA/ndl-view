@@ -1,26 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 
-const baseDir = path.resolve(__dirname, '..'); // go up to ndl-view
+const baseDir = path.resolve(__dirname, '..'); // root (ndl-view)
+const sourceDir = path.join(baseDir, 'shared/models');
+const frontendDestDir = path.join(baseDir, 'frontend/src/app/models');
+const apiDestDir = path.join(baseDir, 'api/models');
 
-const targets = [
-    {
-        src: path.join(baseDir, 'shared/models/watchlist-entry.model.ts'),
-        dests: [
-            path.join(baseDir, 'frontend/src/app/models/watchlist-entry.model.ts'),
-            path.join(baseDir, 'api/models/watchlist-entry.model.ts'),
-        ],
-    }
-];
-
-for (const target of targets) {
-    for (const dest of target.dests) {
-        const destDir = path.dirname(dest);
-        if (!fs.existsSync(destDir)) {
-            fs.mkdirSync(destDir, { recursive: true });
-        }
-
-        fs.copyFileSync(target.src, dest);
-        console.log(`✅ Copied ${target.src} to ${dest}`);
+// Make sure destination dirs exist
+for (const dir of [frontendDestDir, apiDestDir]) {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
     }
 }
+
+// Read all files in shared/models
+fs.readdirSync(sourceDir).forEach((filename) => {
+    const srcFile = path.join(sourceDir, filename);
+
+    // Only copy .ts files (skip other stuff)
+    if (!fs.statSync(srcFile).isFile() || !filename.endsWith('.ts')) return;
+
+    const destFrontend = path.join(frontendDestDir, filename);
+    const destApi = path.join(apiDestDir, filename);
+
+    fs.copyFileSync(srcFile, destFrontend);
+    fs.copyFileSync(srcFile, destApi);
+    console.log(`Copied ${filename} to frontend/ and api/`);
+});
