@@ -10,11 +10,12 @@ import { FormsModule } from '@angular/forms'; // for [(ngModel)]
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatList } from '@angular/material/list';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { NgxGaugeModule } from 'ngx-gauge';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule, MatList, NgxGaugeModule],
+  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule, MatList, MatTabGroup, MatTab, NgxGaugeModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -47,6 +48,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   cryptoList: CryptoEntry[] = [];
   topCryptos: CryptoEntry[] = [];
   watchlist: WatchlistEntry[] = [];
+  activeTabIndex = 0; // 0 = All, 1 = Watched
   // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
   // cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'RRTUSD', 'ZECUSD', 'ZECBTC', 'XMRUSD', 'XMRBTC', 'DSHUSD', 'DSHBTC', 'BTCEUR', 'BTCJPY', 'XRPUSD', 'XRPBTC', 'IOTUSD', 'IOTBTC', 'EOSUSD', 'EOSBTC', 'OMGUSD', 'OMGBTC', 'NEOUSD', 'MNAUSD', 'ZRXUSD', 'TRXUSD', 'TRXBTC', 'BTCGBP', 'ETHEUR', 'ETHJPY', 'ETHGBP', 'DAIUSD', 'XLMUSD', 'XLMBTC', 'MKRUSD', 'XTZUSD'];
   cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'mock'];
@@ -245,6 +247,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.watchlist
       .map(w => this.cryptoList.find(c => c.code === w.code))
       .filter((e): e is CryptoEntry => !!e); // filters out undefined
+  }
+
+  get filteredCryptoList(): CryptoEntry[] {
+    return this.activeTabIndex === 0 ? this.cryptoList : this.watchlistEnriched;
   }
 
   gaugeColor(score: number): string {
