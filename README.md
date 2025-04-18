@@ -2,6 +2,8 @@
 
 This project is a web UI facading [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint.
 
+Frontend uses [Angular](https://github.com/angular/angular-cli).
+
 ## Features
 
 A list of what this app does.
@@ -32,7 +34,7 @@ Using a super simple Express backend to hide API key from browser, and provide m
 
 ## Implementation notes
 
-### Type synchronization
+### Type consistency
 
 There are model classes shared between client side and server side for type consistency. See *./shared/models* for details.
 
@@ -44,11 +46,14 @@ On client side. Guarding against wrong types and illogical ranges. For example, 
     
     Error: high (10.0) should be > low (11.0).
 
-
 ### class WatchlistEntry
 
 #### Data validation
 On server side. Guarding against wrong types and illogical ranges. `isValidWatchlistEntry()` in *validators.ts*.
+
+### class WatchlistService
+
+Maintains single source of truth for the watchlist. Inherently complies to the Observer pattern.
 
 ## Acknowledgements
 
