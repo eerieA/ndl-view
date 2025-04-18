@@ -3,10 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { WatchlistEntry } from '../models/watchlist-entry.model';
 
+import { environment } from '../../envs/environment';
+
 @Injectable({
   providedIn: 'root'
 })
-export class WatchlistService {
+export class WatchlistService {  
+  private readonly beBaseUrl = environment.beBaseUrl;
   private readonly _watchlist = new BehaviorSubject<WatchlistEntry[]>([]);
   readonly watchlist$ = this._watchlist.asObservable();
 
@@ -34,7 +37,7 @@ export class WatchlistService {
   }
 
   getWatchlist(): void {
-    this.http.get<WatchlistEntry[]>('/api/watchlist').subscribe({
+    this.http.get<WatchlistEntry[]>(`${this.beBaseUrl}/watchlist`).subscribe({
       next: (data) => {
         this._watchlist.next(data);
       },
@@ -45,7 +48,7 @@ export class WatchlistService {
   }
 
   saveWatchlist(): void {
-    this.http.post('/api/watchlist', this._watchlist.getValue()).subscribe({
+    this.http.post(`${this.beBaseUrl}/watchlist`, this._watchlist.getValue()).subscribe({
       next: () => console.log('Watchlist saved!'),
       error: err => console.error('Failed to save watchlist:', err)
     });
