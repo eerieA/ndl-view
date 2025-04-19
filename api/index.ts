@@ -4,7 +4,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import sql from './db';
-import { WatchlistEntry } from './models/watchlist-entry.model';
 import { writeWatchlist, readWatchlist } from './storage';
 import { getWatchlistByEmail, upsertWatchlistByEmail } from './watchlist.service';
 import { isValidWatchlistEntry } from './models/validators';
@@ -261,19 +260,28 @@ app.get('/api/watchlist2/', async (req, res) => {
   const email = req.query.email as string;
 
   if (!email) {
-    res.status(400).send({ error: 'Missing email query parameter' });
+    res.status(400).json({ error: 'Missing email query parameter' });
     return;
   }
 
   try {
     const watchlist = await getWatchlistByEmail(email);
+
+    if (
+      !Array.isArray(watchlist) ||
+      !watchlist.every(isValidWatchlistEntry)
+    ) {
+      res.status(500).json({ error: 'Corrupted watchlist format from server' });
+      return;
+    }
+
     res.json(watchlist);
   } catch (error: unknown) {
     // Narrowing the type in order to access its property
     if (error instanceof Error) {
       res.status(500).send(error.message);
     } else {
-      res.status(500).send({ error: 'Unknown error occurred while querying remote database' });
+      res.status(500).json({ error: 'Unknown error occurred while querying remote database' });
     }
   }
 });
@@ -298,11 +306,16 @@ app.post('/api/watchlist2/', async (req, res) => {
   const { email, name, watchlist } = req.body as {
     email?: string;
     name?: string;
-    watchlist?: WatchlistEntry[];
+    watchlist?: any;
   };
 
-  if (!email || !name || !Array.isArray(watchlist)) {
-    res.status(400).send({ error: 'Missing or invalid request body fields: email, name, watchlist' });
+  if (
+    !email ||
+    !name ||
+    !Array.isArray(watchlist) ||
+    !watchlist.every(isValidWatchlistEntry)
+  ) {
+    res.status(400).json({ error: 'Missing or invalid request body fields: email, name, or watchlist format' });
     return;
   }
 
@@ -313,7 +326,7 @@ app.post('/api/watchlist2/', async (req, res) => {
     if (error instanceof Error) {
       res.status(500).send(error.message);
     } else {
-      res.status(500).send({ error: 'Unknown error occurred while saving watchlist' });
+      res.status(500).json({ error: 'Unknown error occurred while saving watchlist' });
     }
   }
 });
