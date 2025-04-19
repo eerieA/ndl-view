@@ -3,7 +3,10 @@ import axios from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import sql from './db';
+import { WatchlistEntry } from './models/watchlist-entry.model';
 import { writeWatchlist, readWatchlist } from './storage';
+import { getWatchlistByEmail, upsertWatchlistByEmail } from './watchlist.service';
 import { isValidWatchlistEntry } from './models/validators';
 
 dotenv.config();
@@ -254,6 +257,27 @@ app.get('/api/watchlist', async (req, res) => {
   }
 });
 
+app.get('/api/watchlist2/', async (req, res) => {
+  const email = req.query.email as string;
+
+  if (!email) {
+    res.status(400).send({ error: 'Missing email query parameter' });
+    return;
+  }
+
+  try {
+    const watchlist = await getWatchlistByEmail(email);
+    res.json(watchlist);
+  } catch (error: unknown) {
+    // Narrowing the type in order to access its property
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    } else {
+      res.status(500).send({ error: 'Unknown error occurred while querying remote database' });
+    }
+  }
+});
+
 app.post('/api/watchlist', async (req, res) => {
   try {
     const newWatchlist = req.body;
@@ -270,42 +294,42 @@ app.post('/api/watchlist', async (req, res) => {
   }
 });
 
-app.patch('/api/watchlist', async (req, res) => {
-  const { code, action } = req.body;
+app.post('/api/watchlist2/', async (req, res) => {
+  const { email, name, watchlist } = req.body as {
+    email?: string;
+    name?: string;
+    watchlist?: WatchlistEntry[];
+  };
 
-  if (!code || !['add', 'remove'].includes(action)) {
-    res.status(400).json({ error: 'Invalid payload' });
-    return;
-  }
-
-  if (!isValidWatchlistEntry({ code })) {
-    res.status(400).json({ error: 'Invalid watchList entry' });
+  if (!email || !name || !Array.isArray(watchlist)) {
+    res.status(400).send({ error: 'Missing or invalid request body fields: email, name, watchlist' });
     return;
   }
 
   try {
-    const current = await readWatchlist();
-    const exists = current.find(e => e.code === code);
-
-    let updated;
-
-    if (action === 'add' && !exists) {
-      updated = [...current, { code }];
-    } else if (action === 'remove' && exists) {
-      updated = current.filter(e => e.code !== code);
+    await upsertWatchlistByEmail(email, name, watchlist);
+    res.status(200).json({ message: 'Watchlist saved successfully!' });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
     } else {
-      res.status(200).json({ message: 'No changes made' }); // nothing to update
-      return;
+      res.status(500).send({ error: 'Unknown error occurred while saving watchlist' });
     }
-
-    await writeWatchlist(updated);
-    res.status(200).json({ message: 'Watchlist updated' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error updating watchlist' });
   }
 });
 
 app.listen(port, () => {
   console.log(`Server running at: ${LOCAL_BASE_URL}`);
+});
+
+process.on('SIGINT', async () => {
+  console.log('Received SIGINT. Closing database connection...');
+  await sql.end({ timeout: 2 });
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Received SIGTERM. Closing database connection...');
+  await sql.end({ timeout: 2 });
+  process.exit(0);
 });

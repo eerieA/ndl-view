@@ -8,10 +8,14 @@ import { environment } from '../../envs/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class WatchlistService {  
+export class WatchlistService {
   private readonly beBaseUrl = environment.beBaseUrl;
   private readonly _watchlist = new BehaviorSubject<WatchlistEntry[]>([]);
   readonly watchlist$ = this._watchlist.asObservable();
+
+  // Temporary. Only use one hardcoded test user for now
+  private userEmail = 'test@123.com';
+  private userName = 'test';
 
   constructor(
     private http: HttpClient
@@ -37,7 +41,7 @@ export class WatchlistService {
   }
 
   getWatchlist(): void {
-    this.http.get<WatchlistEntry[]>(`${this.beBaseUrl}/watchlist`).subscribe({
+    this.http.get<WatchlistEntry[]>(`${this.beBaseUrl}/watchlist2?email=${this.userEmail}`).subscribe({
       next: (data) => {
         this._watchlist.next(data);
       },
@@ -48,7 +52,13 @@ export class WatchlistService {
   }
 
   saveWatchlist(): void {
-    this.http.post(`${this.beBaseUrl}/watchlist`, this._watchlist.getValue()).subscribe({
+    const watchlistData = {
+      email: this.userEmail,
+      name: this.userName,  // Add user name here if you have it
+      watchlist: this._watchlist.getValue()
+    };
+
+    this.http.post(`${this.beBaseUrl}/watchlist2`, watchlistData).subscribe({
       next: () => console.log('Watchlist saved!'),
       error: err => console.error('Failed to save watchlist:', err)
     });
