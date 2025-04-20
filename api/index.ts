@@ -4,7 +4,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import sql from './db';
-import { writeWatchlist, readWatchlist } from './storage';
 import { getWatchlistByEmail, upsertWatchlistByEmail } from './watchlist.service';
 import { isValidWatchlistEntry } from './models/validators';
 
@@ -238,24 +237,6 @@ app.get('/mock-api/crypto-multi', (req: Request, res: Response) => {
   res.status(200).json(dummyData);
 });
 
-app.get('/api/watchlist', async (req, res) => {
-  try {
-    const watchlist = await readWatchlist();
-
-    if (
-      !Array.isArray(watchlist) ||
-      !watchlist.every(isValidWatchlistEntry)
-    ) {
-      res.status(500).json({ error: 'Corrupted watchlist format from server' });
-      return;
-    }
-
-    res.json(watchlist);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load watchlist' });
-  }
-});
-
 app.get('/api/watchlist2/', async (req, res) => {
   const email = req.query.email as string;
 
@@ -283,22 +264,6 @@ app.get('/api/watchlist2/', async (req, res) => {
     } else {
       res.status(500).json({ error: 'Unknown error occurred while querying remote database' });
     }
-  }
-});
-
-app.post('/api/watchlist', async (req, res) => {
-  try {
-    const newWatchlist = req.body;
-    if (!Array.isArray(newWatchlist) ||
-      !newWatchlist.every(isValidWatchlistEntry)) {
-      res.status(400).json({ error: 'Invalid watchlist format' });
-      return;
-    }
-
-    await writeWatchlist(newWatchlist);
-    res.status(200).json({ message: 'Watchlist updated' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update watchlist' });
   }
 });
 
