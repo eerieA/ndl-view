@@ -2,12 +2,10 @@
   "name": "ndl-view-api",
   "version": "1.0.0",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "api/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node index.ts",
-    "build": "tsc",
-    "serve": "node dist/index.js",
+    "start": "ts-node api/index.ts",
     "dev": "nodemon"
   },
   "author": "",

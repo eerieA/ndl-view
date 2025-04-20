@@ -3,9 +3,9 @@ import axios from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-import sql from './db';
-import { getWatchlistByEmail, upsertWatchlistByEmail } from './watchlist.service';
-import { isValidWatchlistEntry } from './models/validators';
+import sql from '../services/db';
+import { getWatchlistByEmail, upsertWatchlistByEmail } from '../services/watchlist.service';
+import { isValidWatchlistEntry } from '../models/validators';
 
 dotenv.config();
 const app = express();

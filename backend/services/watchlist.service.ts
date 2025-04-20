@@ -1,5 +1,5 @@
 import sql from './db';
-import { WatchlistEntry } from './models/watchlist-entry.model';
+import { WatchlistEntry } from '../models/watchlist-entry.model';
 
 export async function getWatchlistByEmail(email: string): Promise<WatchlistEntry[]> {
   const result = await sql`

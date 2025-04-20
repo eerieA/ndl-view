@@ -4,7 +4,7 @@ const path = require('path');
 const baseDir = path.resolve(__dirname, '..'); // root (ndl-view)
 const sourceDir = path.join(baseDir, 'shared/models');
 const frontendDestDir = path.join(baseDir, 'frontend/src/app/models');
-const apiDestDir = path.join(baseDir, 'api/models');
+const apiDestDir = path.join(baseDir, 'backend/models');
 
 // Make sure destination dirs exist
 for (const dir of [frontendDestDir, apiDestDir]) {
@@ -25,5 +25,5 @@ fs.readdirSync(sourceDir).forEach((filename) => {
 
     fs.copyFileSync(srcFile, destFrontend);
     fs.copyFileSync(srcFile, destApi);
-    console.log(`Copied ${filename} to frontend/ and api/`);
+    console.log(`Copied ${filename} to frontend/ and backend/`);
 });
