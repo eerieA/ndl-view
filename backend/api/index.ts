@@ -40,10 +40,10 @@ app.get('/api/crypto', async (req, res) => {
   const codeArray = code.split(',').map(c => c.trim());
   if (code?.includes('mock')) {
     if (codeArray.length > 1) {
-      console.log("redir to internal mock-api/crypto-multi");
-      return res.redirect(`${LOCAL_BASE_URL}/mock-api/crypto-multi`);
+      console.log("Using internal mock data");
+      return handleMockCryptoMulti(req, res);
     } else {
-      res.status(500).json({ error: 'No mock endpoint for this request' });
+      res.status(500).json({ error: 'No mock data for this request' });
       return;
     }
   }
@@ -71,8 +71,82 @@ app.get('/api/crypto', async (req, res) => {
   }
 });
 
-// Dummy data endpoint
-app.get('/mock-api/crypto-multi', (req: Request, res: Response) => {
+app.get('/api/watchlist/', async (req, res) => {
+  const email = req.query.email as string;
+
+  if (!email) {
+    res.status(400).json({ error: 'Missing email query parameter' });
+    return;
+  }
+
+  try {
+    const watchlist = await getWatchlistByEmail(email);
+
+    if (
+      !Array.isArray(watchlist) ||
+      !watchlist.every(isValidWatchlistEntry)
+    ) {
+      res.status(500).json({ error: 'Corrupted watchlist format from server' });
+      return;
+    }
+
+    res.json(watchlist);
+  } catch (error: unknown) {
+    // Narrowing the type in order to access its property
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    } else {
+      res.status(500).json({ error: 'Unknown error occurred while querying remote database' });
+    }
+  }
+});
+
+app.post('/api/watchlist/', async (req, res) => {
+  const { email, name, watchlist } = req.body as {
+    email?: string;
+    name?: string;
+    watchlist?: any;
+  };
+
+  if (
+    !email ||
+    !name ||
+    !Array.isArray(watchlist) ||
+    !watchlist.every(isValidWatchlistEntry)
+  ) {
+    res.status(400).json({ error: 'Missing or invalid request body fields: email, name, or watchlist format' });
+    return;
+  }
+
+  try {
+    await upsertWatchlistByEmail(email, name, watchlist);
+    res.status(200).json({ message: 'Watchlist saved successfully!' });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    } else {
+      res.status(500).json({ error: 'Unknown error occurred while saving watchlist' });
+    }
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running at: ${LOCAL_BASE_URL}`);
+});
+
+process.on('SIGINT', async () => {
+  console.log('Received SIGINT. Closing database connection...');
+  await sql.end({ timeout: 2 });
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Received SIGTERM. Closing database connection...');
+  await sql.end({ timeout: 2 });
+  process.exit(0);
+});
+
+function handleMockCryptoMulti(req: Request, res: Response) {
   const dummyData = {
     "datatable": {
       "data": [
@@ -235,79 +309,4 @@ app.get('/mock-api/crypto-multi', (req: Request, res: Response) => {
   res.setHeader('x-ratelimit-limit', '100');
   res.setHeader('x-ratelimit-remaining', '98');
   res.status(200).json(dummyData);
-});
-
-app.get('/api/watchlist2/', async (req, res) => {
-  const email = req.query.email as string;
-
-  if (!email) {
-    res.status(400).json({ error: 'Missing email query parameter' });
-    return;
-  }
-
-  try {
-    const watchlist = await getWatchlistByEmail(email);
-
-    if (
-      !Array.isArray(watchlist) ||
-      !watchlist.every(isValidWatchlistEntry)
-    ) {
-      res.status(500).json({ error: 'Corrupted watchlist format from server' });
-      return;
-    }
-
-    res.json(watchlist);
-  } catch (error: unknown) {
-    // Narrowing the type in order to access its property
-    if (error instanceof Error) {
-      res.status(500).send(error.message);
-    } else {
-      res.status(500).json({ error: 'Unknown error occurred while querying remote database' });
-    }
-  }
-});
-
-app.post('/api/watchlist2/', async (req, res) => {
-  const { email, name, watchlist } = req.body as {
-    email?: string;
-    name?: string;
-    watchlist?: any;
-  };
-
-  if (
-    !email ||
-    !name ||
-    !Array.isArray(watchlist) ||
-    !watchlist.every(isValidWatchlistEntry)
-  ) {
-    res.status(400).json({ error: 'Missing or invalid request body fields: email, name, or watchlist format' });
-    return;
-  }
-
-  try {
-    await upsertWatchlistByEmail(email, name, watchlist);
-    res.status(200).json({ message: 'Watchlist saved successfully!' });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).send(error.message);
-    } else {
-      res.status(500).json({ error: 'Unknown error occurred while saving watchlist' });
-    }
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Server running at: ${LOCAL_BASE_URL}`);
-});
-
-process.on('SIGINT', async () => {
-  console.log('Received SIGINT. Closing database connection...');
-  await sql.end({ timeout: 2 });
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM. Closing database connection...');
-  await sql.end({ timeout: 2 });
-  process.exit(0);
-});
+}

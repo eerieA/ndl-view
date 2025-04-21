@@ -41,7 +41,7 @@ export class WatchlistService {
   }
 
   getWatchlist(): void {
-    this.http.get<WatchlistEntry[]>(`${this.beBaseUrl}/watchlist2?email=${this.userEmail}`).subscribe({
+    this.http.get<WatchlistEntry[]>(`${this.beBaseUrl}/watchlist?email=${this.userEmail}`).subscribe({
       next: (data) => {
         this._watchlist.next(data);
       },
@@ -58,7 +58,7 @@ export class WatchlistService {
       watchlist: this._watchlist.getValue()
     };
 
-    this.http.post(`${this.beBaseUrl}/watchlist2`, watchlistData).subscribe({
+    this.http.post(`${this.beBaseUrl}/watchlist`, watchlistData).subscribe({
       next: () => console.log('Watchlist saved!'),
       error: err => console.error('Failed to save watchlist:', err)
     });
