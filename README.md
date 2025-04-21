@@ -2,7 +2,7 @@
 
 This project is a web UI facading [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint.
 
-Frontend uses [Angular](https://github.com/angular/angular-cli).
+Frontend uses [Angular](https://github.com/angular/angular-cli). UI framework [Angular Material](https://material.angular.io/).
 
 ## Features
 
