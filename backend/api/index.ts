@@ -40,7 +40,7 @@ app.get('/api/crypto', async (req, res) => {
   const codeArray = code.split(',').map(c => c.trim());
   if (code?.includes('mock')) {
     if (codeArray.length > 1) {
-      console.log("Using internal mock data");
+      console.log("Using internal mock data for cryptos");
       return handleMockCryptoMulti(req, res);
     } else {
       res.status(500).json({ error: 'No mock data for this request' });
@@ -77,6 +77,11 @@ app.get('/api/watchlist/', async (req, res) => {
   if (!email) {
     res.status(400).json({ error: 'Missing email query parameter' });
     return;
+  }
+
+  if (email.includes('mock')) {
+    console.log("Using internal mock data for watchlist GET");
+    return handleMockWatchlist(req, res);
   }
 
   try {
@@ -116,6 +121,11 @@ app.post('/api/watchlist/', async (req, res) => {
   ) {
     res.status(400).json({ error: 'Missing or invalid request body fields: email, name, or watchlist format' });
     return;
+  }
+
+  if (email.includes('mock')) {
+    console.log("Using internal mock data watchlist POST");
+    return handleMockWatchlistPost(req, res);
   }
 
   try {
@@ -309,4 +319,52 @@ function handleMockCryptoMulti(req: Request, res: Response) {
   res.setHeader('x-ratelimit-limit', '100');
   res.setHeader('x-ratelimit-remaining', '98');
   res.status(200).json(dummyData);
+}
+
+const mockWatchlists: Record<string, { email: string; name: string; watchlist: any[] }> = {
+  'mock@123.com': {
+    email: 'test@123.com',
+    name: 'test',
+    watchlist: [
+      {
+        "code": "BTCUSD"
+      },
+      {
+        "code": "ETHUSD"
+      }
+    ],
+  }
+};
+
+function handleMockWatchlist(req: Request, res: Response) {
+  const email = req.query.email as string;
+
+  const matchedKey = Object.keys(mockWatchlists).find(key => key.includes('mock'));
+
+  if (!matchedKey) {
+    res.status(404).json({ error: 'No static mock watchlist found' });
+    return;
+  }
+
+  const mockData = mockWatchlists[matchedKey];
+
+  res.json(mockData.watchlist);
+}
+
+function handleMockWatchlistPost(req: Request, res: Response) {
+  const { email, name, watchlist } = req.body;
+
+  console.log('🧪 Received mock watchlist POST:', { email, name, watchlist });
+
+  if (
+    !email ||
+    !name ||
+    !Array.isArray(watchlist) ||
+    !watchlist.every(isValidWatchlistEntry)
+  ) {
+    res.status(400).json({ error: 'Invalid mock watchlist format' });
+    return;
+  }
+
+  res.status(200).json({ message: 'Mock watchlist "saved" successfully!' });
 }
