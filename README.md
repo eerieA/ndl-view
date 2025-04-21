@@ -26,7 +26,7 @@ Using a super simple Express backend to hide API key from browser, and provide m
 
 - `cd frontend` then `ng serve` for frontend.
 
-- `cd api` then `npm run dev` for backend. This uses Nodemon for hot reloading.
+- `cd backend` then `npm run dev` for backend. This uses Nodemon for hot reloading.
 
 ## Tools and scripts
 
@@ -38,23 +38,24 @@ Using a super simple Express backend to hide API key from browser, and provide m
 
 There are model classes shared between client side and server side for type consistency. See *./shared/models* for details.
 
-### class CryptoEntry
+### Data validation
 
-#### Data validation
+#### class CryptoEntry
 
 On client side. Guarding against wrong types and illogical ranges. For example, if `high` $<$ `low`, it will throw an error in console with a message like this:
     
     Error: high (10.0) should be > low (11.0).
 
-### class WatchlistEntry
+#### class WatchlistEntry
 
-#### Data validation
 On server side. Guarding against wrong types and illogical ranges. `isValidWatchlistEntry()` in *validators.ts*.
 
-### class WatchlistService
+### Synch patterns
+
+#### class WatchlistService
 
 Maintains single source of truth for the watchlist. Inherently complies to the Observer pattern.
 
-## Acknowledgements
+# Acknowledgements
 
 Crypto currency icons are by [cryptocurrency-icons](https://github.com/spothq/cryptocurrency-icons), under [CC0-1.0 license](https://creativecommons.org/publicdomain/zero/1.0/).
