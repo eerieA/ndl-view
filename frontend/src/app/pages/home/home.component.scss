@@ -28,23 +28,21 @@
     padding: 0 var(--mat-filled-button-horizontal-padding, 16px);
 }
 
-.rate-limit-panel {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    padding: 8px 12px;
-    font-size: var(--mat-table-row-item-label-text-size, var(--mat-sys-body-medium-size, 14px));
-    border-radius: 8px;
-    z-index: 1000;
-    opacity: 0.9;
+.home-layout {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    padding: 16px;
 }
 
 .home-cards-container {
+    flex: 1 1 0;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 16px;
+    flex-flow: column;
+    min-width: 0;
+    gap: 16px;
 
     .top-row {
         display: flex;
@@ -54,7 +52,7 @@
         /* For all mat card in this container */
         mat-card {
             flex: 2 1 0; // flex grow is 2
-            min-width: 150px;
+            min-width: 100px;
         }
 
         /* The third card only */
@@ -75,12 +73,15 @@
         }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 500px) {
         .top-row {
             flex-direction: column;
 
             mat-card {
                 flex: 1 1 100%;
+                //Only limit height when window is too narrow
+                //If limit it in wider window, the cards would grow too tall
+                max-height: fit-content;
             }
         }
     }
@@ -123,4 +124,24 @@
     height: 20px;
     margin-right: 4px;
     vertical-align: middle;
+}
+
+.watchlist-sidebar {
+    flex-shrink: 1;
+    max-height: 35vh;
+    overflow-y: auto;
+    scrollbar-gutter: stable;   // Reserve scroll bar width
+    margin-right: -6px; // Compensate for the scroll bar reserved width
+}
+
+.rate-limit-panel {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 8px 12px;
+    font-size: var(--mat-table-row-item-label-text-size, var(--mat-sys-body-medium-size, 14px));
+    border-radius: 8px;
+    z-index: 1000;
+    opacity: 0.9;
 }

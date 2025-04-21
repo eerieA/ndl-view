@@ -1,5 +1,7 @@
 <!-- main region -->
-<div class="home-cards-container">
+<div class="home-layout">
+
+<div class="watchlist-sidebar">
     <mat-card>
         <mat-card-header>
             <mat-card-title>Watchlist</mat-card-title>
@@ -11,7 +13,9 @@
             </div>
         </mat-card-content>
     </mat-card>
+</div>
 
+<div class="home-cards-container">
     <div class="top-row">
         <mat-card *ngIf="isBrowser && topCryptos.length > 0">
             <!-- Some Angular Material components rely on window, document etc so we need to check if isBrowser -->
@@ -106,6 +110,7 @@
         </mat-card>
     </div>
 
+</div>
 </div>
 
 <!-- Rate limit info card -->

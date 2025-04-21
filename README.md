@@ -1,8 +1,6 @@
 # NDLView
 
-This project is a web UI accessing [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint.
-
-Frontend uses [Angular](https://github.com/angular/angular-cli). UI framework [Angular Material](https://material.angular.io/).
+This project is a web UI accessing [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint. Frontend uses [Angular](https://github.com/angular/angular-cli). UI framework [Angular Material](https://material.angular.io/). Postgres for data storage.
 
 ## Features
 
@@ -16,17 +14,29 @@ A list of what this app does.
 - Let user filter the crypto list based on the watchlist.
 
 ## Screenshot
-<img alt="Screenshot" src="https://live.staticflickr.com/65535/54458744302_d88e3d5e16_b.jpg" width="500">
+<img alt="Screenshot" src="https://live.staticflickr.com/65535/54465086247_30d80b8b7c_b.jpg" width="500">
 
 # Docs
 
-## Development servers
+## Development settings
 
 Using a super simple Express backend to hide API key from browser, and provide mock data for frontend iterations.
 
 - `cd frontend` then `ng serve` for frontend.
 
 - `cd backend` then `npm run dev` for backend. This uses Nodemon for hot reloading.
+
+## Deployment settings
+
+### Vercel
+
+Deployed as 2 apps for seperation of concerns. Both of them have bash command:
+
+```
+if [[ "$VERCEL_GIT_COMMIT_MESSAGE" == *"[skip]"* ]]; then exit 0; else exit 1; fi
+```
+
+to cancel build when git commit message contains certain words such as `[skip]`.
 
 ## Tools and scripts
 
@@ -42,7 +52,7 @@ There are model classes shared between client side and server side for type cons
 
 #### class CryptoEntry
 
-On client side. Guarding against wrong types and illogical ranges. For example, if `high` $<$ `low`, it will throw an error in console with a message like this:
+On client side. Guarding against wrong types and illogical ranges. For example, if high $<$ low, it will throw an error in console with a message like this:
     
     Error: high (10.0) should be > low (11.0).
 
@@ -54,11 +64,11 @@ On server side. Guarding against wrong types and illogical ranges. `isValidWatch
 
 #### class WatchlistService
 
-Maintains single source of truth for the watchlist. Inherently complies to the Observer pattern.
+Maintains single source of truth for the watchlist. Inherently complies to the *Observer* pattern.
 
 #### db.ts (backend)
 
-Singleton. General Postgre DB connector.
+*Singleton*. General Postgre DB connector.
 
 # Acknowledgements
 
