@@ -56,6 +56,10 @@ On server side. Guarding against wrong types and illogical ranges. `isValidWatch
 
 Maintains single source of truth for the watchlist. Inherently complies to the Observer pattern.
 
+#### db.ts (backend)
+
+Singleton. General Postgre DB connector.
+
 # Acknowledgements
 
 Crypto currency icons are by [cryptocurrency-icons](https://github.com/spothq/cryptocurrency-icons), under [CC0-1.0 license](https://creativecommons.org/publicdomain/zero/1.0/).
