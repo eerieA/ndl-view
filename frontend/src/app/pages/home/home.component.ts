@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   activeTabIndex = 0; // 0 = All, 1 = Watched
   // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
   // cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'RRTUSD', 'ZECUSD', 'ZECBTC', 'XMRUSD', 'XMRBTC', 'DSHUSD', 'DSHBTC', 'BTCEUR', 'BTCJPY', 'XRPUSD', 'XRPBTC', 'IOTUSD', 'IOTBTC', 'EOSUSD', 'EOSBTC', 'OMGUSD', 'OMGBTC', 'NEOUSD', 'MNAUSD', 'ZRXUSD', 'TRXUSD', 'TRXBTC', 'BTCGBP', 'ETHEUR', 'ETHJPY', 'ETHGBP', 'DAIUSD', 'XLMUSD', 'XLMBTC', 'MKRUSD', 'XTZUSD'];
-  cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD'];
+  cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'mock'];
 
   chartData: any = [];
   chartOptions: any = {};
