@@ -1,12 +1,12 @@
 # NDLView
 
-This project is a web UI accessing [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint. Frontend uses [Angular](https://github.com/angular/angular-cli). UI framework [Angular Material](https://material.angular.io/). Postgres for data storage.
+This project is a web UI accessing [Nasdaq Data Link API](https://www.nasdaq.com/solutions/data/nasdaq-data-link/api), crypto currency table endpoint. Frontend uses [Angular](https://github.com/angular/angular-cli). UI framework [Angular Material](https://material.angular.io/). Postgres for data storage, currently a serverless one.
 
 ## Features
 
 A list of what this app does.
 
-- Displays a list of cryptos with info from previous day.
+- Displays a list of cryptos with data from previous day.
 - Displays a ranked "top 5" list based on previous day's prices.
 - Displays simple market summary statistics from previous day.
 - Let user add cryptos from the top list to a personal watchlist.
@@ -36,7 +36,7 @@ Deployed as 2 apps for seperation of concerns. Both of them have bash command:
 if [[ "$VERCEL_GIT_COMMIT_MESSAGE" == *"[skip]"* ]]; then exit 0; else exit 1; fi
 ```
 
-to cancel build when git commit message contains certain words such as `[skip]`.
+to cancel build when git commit message contains certain words such as "[skip]".
 
 ## Tools and scripts
 
@@ -56,6 +56,8 @@ On client side. Guarding against wrong types and illogical ranges. For example, 
     
     Error: high (10.0) should be > low (11.0).
 
+Handled by a factory method `static parseApiRow()`.
+
 #### class WatchlistEntry
 
 On server side. Guarding against wrong types and illogical ranges. `isValidWatchlistEntry()` in *validators.ts*.
@@ -68,7 +70,7 @@ Maintains single source of truth for the watchlist. Inherently complies to the *
 
 #### db.ts (backend)
 
-*Singleton*. General Postgre DB connector.
+Has a *Singleton*, a general Postgres DB handler instance.
 
 # Acknowledgements
 
