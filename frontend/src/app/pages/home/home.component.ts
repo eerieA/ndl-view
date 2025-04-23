@@ -113,16 +113,18 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.cryptoList = entries;
           this.rateLimitInfo.limit = response.headers.get('x-ratelimit-limit');
           this.rateLimitInfo.remaining = response.headers.get('x-ratelimit-remaining');
+          console.log("processed entrie:", entries);
+
+          // After data is loaded, update the top few highest priced cryptos
+          // and market summary
+          this.getTopCryptos();
+          this.calculateMarketSummary(this.cryptoList);
+          console.log("market summary:", this.marketSummary);
         },
         error: (err) => console.error(`Fetch error for ${codes}:`, err)
       })
     );
 
-    // After data is loaded, update the top few highest priced cryptos
-    // and market summary
-    this.getTopCryptos();
-    this.calculateMarketSummary(this.cryptoList);
-    console.log("market summary:", this.marketSummary);
   }
 
   parseCryptoEntries(raw: any): CryptoEntry[] {
