@@ -51,9 +51,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   topCryptos: CryptoEntry[] = [];
   watchlist: WatchlistEntry[] = [];
   activeTabIndex = 0; // 0 = All, 1 = Watched
-  pageSize = 20; // How many cryptos to load per "page"
+  pageSize = 5; // How many cryptos to load per "page"
   currentPage = 0;
-  // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
+  loadingPage = false;
 
   chartOptions: any = {};
   isBrowser: boolean;
@@ -111,8 +111,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         next: (response) => {
           const symbolsData = response.data;
           this.allSymbols = symbolsData?.datatable?.data?.map((row: any) => row[0]) ?? [];
-
-          console.log("Fetched symbols:", this.allSymbols);
+          // console.log("Fetched symbols:", this.allSymbols);
 
           if (this.allSymbols.length === 0) {
             console.warn("No crypto symbols found for date:", targetDate);
@@ -151,27 +150,31 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Parse and sort the top 5 highest priced cryptos
   getTopCryptos() {
-    this.topCryptos = this.cryptoList
+    this.topCryptos = [...this.cryptoList]  // Spread to create a shallow copy
       .sort((a, b) => b.last - a.last)  // Sort by 'last' price in descending order
       .slice(0, 5);  // Take the top 5
   }
 
   loadMoreSymbols(start: string, end: string) {
+    if (this.loadingPage) { return; }
+    this.loadingPage = true;
+
     const startIndex = this.currentPage * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     const nextBatch = this.allSymbols.slice(startIndex, endIndex);
 
-    if (nextBatch.length === 0) {
-      console.log("No more symbols to load");
+    if (!nextBatch.length) {
+      this.loadingPage = false;
       return;
     }
 
     const joinedCodes = nextBatch.join(',');
-    this.sub.add(
-      this.ndlService.getCryptoData(joinedCodes, start, end).subscribe({
+    this.ndlService.getCryptoData(joinedCodes, start, end)
+      .subscribe({
         next: (response) => {
           const entries = this.parseCryptoEntries(response.data);
-          this.cryptoList = [...this.cryptoList, ...entries]; // Append new entries to the current list
+          this.cryptoList = [...this.cryptoList, ...entries];
+
           this.rateLimitInfo.limit = response.headers.get('x-ratelimit-limit');
           this.rateLimitInfo.remaining = response.headers.get('x-ratelimit-remaining');
           // console.log("Loaded more entries:", entries);
@@ -179,12 +182,11 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.getTopCryptos();
           this.calculateMarketSummary(this.cryptoList);
           console.log("Market summary:", this.marketSummary);
-
-          this.currentPage++; // Ready for next page
+          this.currentPage++;
         },
-        error: (err) => console.error(`Fetch error for ${joinedCodes}:`, err)
-      })
-    );
+        error: (err) => console.error(`Fetch error for ${joinedCodes}:`, err),
+        complete: () => { this.loadingPage = false; }
+      });
   }
 
   loadMore() {
@@ -291,14 +293,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.wlService.isWatched(code);
   }
 
-  get watchlistEnriched(): CryptoEntry[] {
+  get watchlistIntersect(): CryptoEntry[] {
     return this.watchlist
       .map(w => this.cryptoList.find(c => c.code === w.code))
       .filter((e): e is CryptoEntry => !!e); // filters out undefined
   }
 
   get filteredCryptoList(): CryptoEntry[] {
-    return this.activeTabIndex === 0 ? this.cryptoList : this.watchlistEnriched;
+    return this.activeTabIndex === 0 ? this.cryptoList : this.watchlistIntersect;
   }
 
   gaugeColor(score: number): string {

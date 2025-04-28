@@ -6,9 +6,9 @@
         <mat-card-header>
             <mat-card-title>Watchlist</mat-card-title>
         </mat-card-header>
-        <mat-card-content *ngIf="watchlistEnriched.length > 0; else noWatchlist">
-            <div *ngFor="let entry of watchlistEnriched" class="plain-list-item">
-                <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" />
+        <mat-card-content *ngIf="watchlist.length > 0; else noWatchlist">
+            <div *ngFor="let entry of watchlist" class="plain-list-item">
+                <img [src]="lookUpIconUrl(entry.code.slice(0, -3))" alt="{{ entry.code }}" class="crypto-icon" />
                 {{ entry.code }}
             </div>
         </mat-card-content>
@@ -106,7 +106,9 @@
                 </ng-container>
 
                 </mat-table>
-                <button (click)="loadMore()" *ngIf="hasMoreSymbols()">Load More</button>
+                <button mat-flat-button (click)="loadMore()" [disabled]="loadingPage || !hasMoreSymbols()">
+                    {{ loadingPage ? 'Loading…' : 'Load More' }}
+                </button>
             </ng-container>
         </mat-card>
     </div>

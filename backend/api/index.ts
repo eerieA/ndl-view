@@ -18,6 +18,7 @@ app.use(cors());
 const NDL_API_KEY = process.env.NDL_API_KEY || 'no-key';
 const NDL_BASE_URL = 'https://data.nasdaq.com/api/v3/datatables/QDL/BITFINEX';
 const LOCAL_BASE_URL = `http://localhost:${port}`;
+const USE_MOCK_DATA = true; // Global-ish mock data flag
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript Express!');
@@ -27,6 +28,7 @@ app.get('/', (req: Request, res: Response) => {
 // NDL proxies
 
 // For sending custom headers
+// If not do this, custom headers will be silently blocked
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Expose-Headers', 'x-ratelimit-limit, x-ratelimit-remaining');
   next();
@@ -46,7 +48,7 @@ app.get('/api/crypto', async (req, res) => {
 
   // For DEBUG
   const codeArray = code.split(',').map(c => c.trim());
-  if (code?.includes('mock')) {
+  if (USE_MOCK_DATA) {
     if (codeArray.length > 1) {
       console.log("Using internal mock data for cryptos");
       return handleMockCryptoMulti(req, res);
@@ -75,15 +77,22 @@ app.get('/api/crypto', async (req, res) => {
 });
 
 app.get('/api/crypto/symbols', async (req, res) => {
+  const { date } = req.query as {
+    date?: string;
+  };
+
+  if (!date) {
+    res.status(400).json({ error: 'Missing required query parameter: date' });
+    return;
+  }
+
+  // For DEBUG
+  if (USE_MOCK_DATA) {
+    console.log("Using internal mock data for crypto symbols");
+    return handleMockCryptoSymbols(req, res);
+  }
 
   try {
-    const { date } = req.query;
-
-    if (!date) {
-      res.status(400).json({ error: 'Missing required query parameter: date' });
-      return;
-    }
-
     const url = `${NDL_BASE_URL}?qopts.columns=code&date=${date}&api_key=${NDL_API_KEY}`;
     console.log('Proxying to:', url);
 
@@ -92,7 +101,7 @@ app.get('/api/crypto/symbols', async (req, res) => {
     // Relay select headers (NDL rate limit info)
     relayHeaders(response.headers, res, ['x-ratelimit-limit', 'x-ratelimit-remaining']);
 
-    res.json(response.data); // or format it a bit if you want
+    res.status(response.status).json(response.data); // or format it a bit if you want
   } catch (error) {
     console.error('Error fetching crypto symbols:', error);
     res.status(500).json({ error: 'Failed to fetch crypto symbols' });
@@ -107,7 +116,7 @@ app.get('/api/watchlist/', async (req, res) => {
     return;
   }
 
-  if (email.includes('mock')) {
+  if (USE_MOCK_DATA) {
     console.log("Using internal mock data for watchlist GET");
     return handleMockWatchlist(req, res);
   }
@@ -151,7 +160,7 @@ app.post('/api/watchlist/', async (req, res) => {
     return;
   }
 
-  if (email.includes('mock')) {
+  if (USE_MOCK_DATA) {
     console.log("Using internal mock data watchlist POST");
     return handleMockWatchlistPost(req, res);
   }
@@ -201,169 +210,183 @@ function relayHeaders(
   });
 }
 
-function handleMockCryptoMulti(req: Request, res: Response) {
-  const dummyData = {
-    "datatable": {
-      "data": [
-        [
-          "ZECUSD",
-          "2025-04-14",
-          34.795,
-          26.667,
-          30.17,
-          30.119,
-          30.119,
-          30.221,
-          7376.64624749
-        ],
-        [
-          "ZECBTC",
-          "2025-04-14",
-          0.000403,
-          0.00031341,
-          0.000362995,
-          0.00036353,
-          0.00035531,
-          0.00037068,
-          3114.57318898
-        ],
-        [
-          "RRTUSD",
-          "2025-04-14",
-          0.8252,
-          0.8252,
-          0.86014,
-          0.8252,
-          0.82029,
-          0.89999,
-          33.62159216
-        ],
-        [
-          "LTCUSD",
-          "2025-04-14",
-          80.54,
-          75.729,
-          76.9255,
-          76.93,
-          76.881,
-          76.97,
-          9944.35215942
-        ],
-        [
-          "LTCBTC",
-          "2025-04-14",
-          0.00093796,
-          0.0009023,
-          0.00091097,
-          0.00090936,
-          0.0009106,
-          0.00091134,
-          7087.45081847
-        ],
-        [
-          "ETHUSD",
-          "2025-04-14",
-          1689.8,
-          1582.1,
-          1620.95,
-          1620.1,
-          1620.9,
-          1621,
-          8675.49927813
-        ],
-        [
-          "ETHBTC",
-          "2025-04-14",
-          0.019921,
-          0.019002,
-          0.01918,
-          0.019177,
-          0.019177,
-          0.019183,
-          5087.27628031
-        ],
-        [
-          "ETCUSD",
-          "2025-04-14",
-          15.804,
-          15.123,
-          15.2735,
-          15.298,
-          15.267,
-          15.28,
-          2255.68710639
-        ],
-        [
-          "ETCBTC",
-          "2025-04-14",
-          0.000186,
-          0.00018023,
-          0.000180695,
-          0.00018023,
-          0.00018053,
-          0.00018086,
-          485.99953082
-        ],
-        [
-          "BTCUSD",
-          "2025-04-14",
-          85727,
-          83167,
-          84517.5,
-          84530,
-          84517,
-          84518,
-          186.06922417
-        ]
+const mockCryptoList = {
+  "datatable": {
+    "data": [
+      [
+        "ZECUSD",
+        "2025-04-14",
+        34.795,
+        26.667,
+        30.17,
+        30.119,
+        30.119,
+        30.221,
+        7376.64624749
       ],
-      "columns": [
-        {
-          "name": "code",
-          "type": "text"
-        },
-        {
-          "name": "date",
-          "type": "Date"
-        },
-        {
-          "name": "high",
-          "type": "double"
-        },
-        {
-          "name": "low",
-          "type": "double"
-        },
-        {
-          "name": "mid",
-          "type": "double"
-        },
-        {
-          "name": "last",
-          "type": "double"
-        },
-        {
-          "name": "bid",
-          "type": "double"
-        },
-        {
-          "name": "ask",
-          "type": "double"
-        },
-        {
-          "name": "volume",
-          "type": "double"
-        }
+      [
+        "ZECBTC",
+        "2025-04-14",
+        0.000403,
+        0.00031341,
+        0.000362995,
+        0.00036353,
+        0.00035531,
+        0.00037068,
+        3114.57318898
+      ],
+      [
+        "RRTUSD",
+        "2025-04-14",
+        0.8252,
+        0.8252,
+        0.86014,
+        0.8252,
+        0.82029,
+        0.89999,
+        33.62159216
+      ],
+      [
+        "LTCUSD",
+        "2025-04-14",
+        80.54,
+        75.729,
+        76.9255,
+        76.93,
+        76.881,
+        76.97,
+        9944.35215942
+      ],
+      [
+        "LTCBTC",
+        "2025-04-14",
+        0.00093796,
+        0.0009023,
+        0.00091097,
+        0.00090936,
+        0.0009106,
+        0.00091134,
+        7087.45081847
+      ],
+      [
+        "ETHUSD",
+        "2025-04-14",
+        1689.8,
+        1582.1,
+        1620.95,
+        1620.1,
+        1620.9,
+        1621,
+        8675.49927813
+      ],
+      [
+        "ETHBTC",
+        "2025-04-14",
+        0.019921,
+        0.019002,
+        0.01918,
+        0.019177,
+        0.019177,
+        0.019183,
+        5087.27628031
+      ],
+      [
+        "ETCUSD",
+        "2025-04-14",
+        15.804,
+        15.123,
+        15.2735,
+        15.298,
+        15.267,
+        15.28,
+        2255.68710639
+      ],
+      [
+        "ETCBTC",
+        "2025-04-14",
+        0.000186,
+        0.00018023,
+        0.000180695,
+        0.00018023,
+        0.00018053,
+        0.00018086,
+        485.99953082
+      ],
+      [
+        "BTCUSD",
+        "2025-04-14",
+        85727,
+        83167,
+        84517.5,
+        84530,
+        84517,
+        84518,
+        186.06922417
       ]
-    },
-    "meta": {
-      "next_cursor_id": null
-    }
-  };
+    ],
+    "columns": [
+      {
+        "name": "code",
+        "type": "text"
+      },
+      {
+        "name": "date",
+        "type": "Date"
+      },
+      {
+        "name": "high",
+        "type": "double"
+      },
+      {
+        "name": "low",
+        "type": "double"
+      },
+      {
+        "name": "mid",
+        "type": "double"
+      },
+      {
+        "name": "last",
+        "type": "double"
+      },
+      {
+        "name": "bid",
+        "type": "double"
+      },
+      {
+        "name": "ask",
+        "type": "double"
+      },
+      {
+        "name": "volume",
+        "type": "double"
+      }
+    ]
+  },
+  "meta": {
+    "next_cursor_id": null
+  }
+};
 
+function handleMockCryptoMulti(req: Request, res: Response) {
   // Simulate rate limit headers like NDL
   res.setHeader('x-ratelimit-limit', '100');
   res.setHeader('x-ratelimit-remaining', '98');
-  res.status(200).json(dummyData);
+  res.status(200).json(mockCryptoList);
+}
+
+function handleMockCryptoSymbols(req: Request, res: Response) {
+  const symbolList = mockCryptoList.datatable.data.map(entry => [entry[0]]); // Wrap each symbol in an array
+
+  const mockResponse = {
+    datatable: {
+      data: symbolList
+    }
+  };
+
+  res.setHeader('x-ratelimit-limit', '100');
+  res.setHeader('x-ratelimit-remaining', '98');
+  res.status(200).json(mockResponse);
 }
 
 const mockWatchlists: Record<string, { email: string; name: string; watchlist: any[] }> = {
