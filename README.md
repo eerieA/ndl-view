@@ -10,11 +10,12 @@ A list of what this app does.
 - Displays a ranked "top 5" list based on previous day's prices.
 - Displays simple market summary statistics from previous day.
 - Let user add cryptos from the top list to a personal watchlist.
-- Let user remove cryptos from the watchlist.
+- Let user remove cryptos from the watchlist through the top list.
 - Let user filter the crypto list based on the watchlist.
+- Let user load remaining pages of data only when they choose to.
 
 ## Screenshot
-<img alt="Screenshot" src="https://live.staticflickr.com/65535/54465086247_30d80b8b7c_b.jpg" width="500">
+<img alt="Screenshot" src="https://live.staticflickr.com/65535/54483803224_5e420aca25_b.jpg" width="500">
 
 # Docs
 
