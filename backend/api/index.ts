@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import axios from 'axios';
+import axios, { AxiosResponseHeaders } from 'axios';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
@@ -23,7 +23,15 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript Express!');
 });
 
-// Proxy endpoint
+// ========================================================================== //
+// NDL proxies
+
+// For sending custom headers
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Expose-Headers', 'x-ratelimit-limit, x-ratelimit-remaining');
+  next();
+});
+
 app.get('/api/crypto', async (req, res) => {
   const { code, from, to } = req.query as {
     code?: string;
@@ -56,18 +64,38 @@ app.get('/api/crypto', async (req, res) => {
     const response = await axios.get(url);
 
     // Relay select headers (NDL rate limit info)
-    const selectedHeaders = ['x-ratelimit-limit', 'x-ratelimit-remaining'];
-    for (const headerName of selectedHeaders) {
-      const headerValue = response.headers[headerName];
-      if (headerValue !== undefined) {
-        res.setHeader(headerName, headerValue);
-      }
-    }
+    // res.setHeader('Access-Control-Expose-Headers', 'x-ratelimit-limit, x-ratelimit-remaining');
+    relayHeaders(response.headers, res, ['x-ratelimit-limit', 'x-ratelimit-remaining']);
 
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error fetching data from Nasdaq:', error);
     res.status(500).json({ error: 'Failed to fetch data from upstream API' });
+  }
+});
+
+app.get('/api/crypto/symbols', async (req, res) => {
+
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      res.status(400).json({ error: 'Missing required query parameter: date' });
+      return;
+    }
+
+    const url = `${NDL_BASE_URL}?qopts.columns=code&date=${date}&api_key=${NDL_API_KEY}`;
+    console.log('Proxying to:', url);
+
+    const response = await axios.get(url);
+
+    // Relay select headers (NDL rate limit info)
+    relayHeaders(response.headers, res, ['x-ratelimit-limit', 'x-ratelimit-remaining']);
+
+    res.json(response.data); // or format it a bit if you want
+  } catch (error) {
+    console.error('Error fetching crypto symbols:', error);
+    res.status(500).json({ error: 'Failed to fetch crypto symbols' });
   }
 });
 
@@ -155,6 +183,23 @@ process.on('SIGTERM', async () => {
   await sql.end({ timeout: 2 });
   process.exit(0);
 });
+
+
+// ========================================================================== //
+// Helpers
+
+function relayHeaders(
+  sourceHeaders: Record<string, any>,
+  targetResponse: Response,
+  headerNames: string[]
+) {
+  headerNames.forEach((name) => {
+    const value = sourceHeaders[name.toLowerCase()];
+    if (value != null) {
+      targetResponse.setHeader(name, value.toString());
+    }
+  });
+}
 
 function handleMockCryptoMulti(req: Request, res: Response) {
   const dummyData = {

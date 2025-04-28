@@ -45,16 +45,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   rateLimitInfo = {
     remaining: 0,
     limit: 0,
-  }
+  };
+  allSymbols: string[] = [];
   cryptoList: CryptoEntry[] = [];
   topCryptos: CryptoEntry[] = [];
   watchlist: WatchlistEntry[] = [];
   activeTabIndex = 0; // 0 = All, 1 = Watched
+  pageSize = 20; // How many cryptos to load per "page"
+  currentPage = 0;
   // DEBUG instruction: add word 'mock' at the end of these to call the mock endpoint
-  // cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'RRTUSD', 'ZECUSD', 'ZECBTC', 'XMRUSD', 'XMRBTC', 'DSHUSD', 'DSHBTC', 'BTCEUR', 'BTCJPY', 'XRPUSD', 'XRPBTC', 'IOTUSD', 'IOTBTC', 'EOSUSD', 'EOSBTC', 'OMGUSD', 'OMGBTC', 'NEOUSD', 'MNAUSD', 'ZRXUSD', 'TRXUSD', 'TRXBTC', 'BTCGBP', 'ETHEUR', 'ETHJPY', 'ETHGBP', 'DAIUSD', 'XLMUSD', 'XLMBTC', 'MKRUSD', 'XTZUSD'];
-  cryptoOptions = ['BTCUSD', 'LTCUSD', 'LTCBTC', 'ETHUSD', 'ETHBTC', 'ETCBTC', 'ETCUSD', 'mock'];
 
-  chartData: any = [];
   chartOptions: any = {};
   isBrowser: boolean;
 
@@ -89,6 +89,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.sub.add(
       this.wlService.watchlist$.subscribe(w => {
         this.watchlist = w;
+        console.log("watchlist:", this.watchlist);
       })
     );
   }
@@ -96,35 +97,35 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadData() {
     console.log("loadData");
 
-    // To be safe, target date is 2 days before today
     const targetDate = this.getPastDateString(2);
     console.log("targetDate:", targetDate);
     const start = targetDate;
     const end = targetDate;
 
-    const codes = this.cryptoOptions.join(',');
-    console.log("joined codes:", codes);
     this.cryptoList = []; // Clear old entries
+    this.currentPage = 0;
 
     this.sub.add(
-      this.ndlService.getCryptoData(codes, start, end).subscribe({
+      // First fetch crypto symbols for the target date
+      this.ndlService.getCryptoSymbols(targetDate).subscribe({
         next: (response) => {
-          const entries = this.parseCryptoEntries(response.data);
-          this.cryptoList = entries;
-          this.rateLimitInfo.limit = response.headers.get('x-ratelimit-limit');
-          this.rateLimitInfo.remaining = response.headers.get('x-ratelimit-remaining');
-          console.log("processed entrie:", entries);
+          const symbolsData = response.data;
+          this.allSymbols = symbolsData?.datatable?.data?.map((row: any) => row[0]) ?? [];
 
-          // After data is loaded, update the top few highest priced cryptos
-          // and market summary
-          this.getTopCryptos();
-          this.calculateMarketSummary(this.cryptoList);
-          console.log("market summary:", this.marketSummary);
+          console.log("Fetched symbols:", this.allSymbols);
+
+          if (this.allSymbols.length === 0) {
+            console.warn("No crypto symbols found for date:", targetDate);
+            return;
+          }
+
+          // Then fetch crypto data for the first page of those symbols
+          this.loadMoreSymbols(start, end);
+
         },
-        error: (err) => console.error(`Fetch error for ${codes}:`, err)
+        error: (err) => console.error("Failed to fetch crypto symbols:", err)
       })
     );
-
   }
 
   parseCryptoEntries(raw: any): CryptoEntry[] {
@@ -153,6 +154,50 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.topCryptos = this.cryptoList
       .sort((a, b) => b.last - a.last)  // Sort by 'last' price in descending order
       .slice(0, 5);  // Take the top 5
+  }
+
+  loadMoreSymbols(start: string, end: string) {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    const nextBatch = this.allSymbols.slice(startIndex, endIndex);
+
+    if (nextBatch.length === 0) {
+      console.log("No more symbols to load");
+      return;
+    }
+
+    const joinedCodes = nextBatch.join(',');
+    this.sub.add(
+      this.ndlService.getCryptoData(joinedCodes, start, end).subscribe({
+        next: (response) => {
+          const entries = this.parseCryptoEntries(response.data);
+          this.cryptoList = [...this.cryptoList, ...entries]; // Append new entries to the current list
+          this.rateLimitInfo.limit = response.headers.get('x-ratelimit-limit');
+          this.rateLimitInfo.remaining = response.headers.get('x-ratelimit-remaining');
+          // console.log("Loaded more entries:", entries);
+
+          this.getTopCryptos();
+          this.calculateMarketSummary(this.cryptoList);
+          console.log("Market summary:", this.marketSummary);
+
+          this.currentPage++; // Ready for next page
+        },
+        error: (err) => console.error(`Fetch error for ${joinedCodes}:`, err)
+      })
+    );
+  }
+
+  loadMore() {
+    const targetDate = this.getPastDateString(2);
+    const start = targetDate;
+    const end = targetDate;
+
+    this.loadMoreSymbols(start, end);
+  }
+
+  hasMoreSymbols(): boolean {
+    const nextStartIndex = (this.currentPage) * this.pageSize;
+    return nextStartIndex < this.allSymbols.length;
   }
 
   /* How does it work:

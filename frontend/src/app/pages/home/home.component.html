@@ -81,6 +81,9 @@
             <ng-container *ngIf="filteredCryptoList.length > 0; else listNoEntries">
                 <mat-table [dataSource]="filteredCryptoList" class="mat-elevation-z2">
 
+                <mat-header-row *matHeaderRowDef="columnHeaders"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: columnHeaders"></mat-row>
+
                 <!-- Dynamically create columns -->
                 <ng-container *ngFor="let col of columnDefs" [matColumnDef]="col.key">
                     <mat-header-cell *matHeaderCellDef> {{ col.label }} </mat-header-cell>
@@ -102,10 +105,8 @@
                     </mat-cell>
                 </ng-container>
 
-                <mat-header-row *matHeaderRowDef="columnHeaders"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: columnHeaders"></mat-row>
-
                 </mat-table>
+                <button (click)="loadMore()" *ngIf="hasMoreSymbols()">Load More</button>
             </ng-container>
         </mat-card>
     </div>
