@@ -60,11 +60,7 @@ export class WatchlistService {
 
     this.http.post(`${this.beBaseUrl}/watchlist`, watchlistData).subscribe({
       next: () => {
-        if (this.userEmail.includes('mock')) {
-          console.log('Watchlist \"saved\" (mock, not persistent)!');
-        } else {
-          console.log('Watchlist saved!');
-        }
+        console.log('Watchlist saved!');
       },
       error: err => console.error('Failed to save watchlist:', err)
     });
