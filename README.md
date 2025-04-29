@@ -23,6 +23,8 @@ A list of what this app does.
 
 Using a super simple Express backend to hide API key from browser, and provide mock data for frontend iterations.
 
+Before first run, run `npm run inst` under project root. Then each time afterwards:
+
 - `cd frontend` then `ng serve` for frontend.
 
 - `cd backend` then `npm run dev` for backend. This uses Nodemon for hot reloading.
@@ -41,7 +43,9 @@ to cancel build when git commit message contains certain words such as "[skip]".
 
 ## Tools and scripts
 
-`npm run cp-mdl`: Synchronize shared models. This command is defined in *package.json* in root.
+In root *package.json*:
+
+`npm run cp-mdl`: Synchronize shared models.
 
 ## Implementation notes
 
