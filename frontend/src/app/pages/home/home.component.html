@@ -8,7 +8,7 @@
         </mat-card-header>
         <mat-card-content *ngIf="watchlist.length > 0; else noWatchlist">
             <div *ngFor="let entry of watchlist" class="plain-list-item">
-                <img [src]="lookUpIconUrl(entry.code.slice(0, -3))" alt="{{ entry.code }}" class="crypto-icon" />
+                <img [src]="lookUpIconUrl(entry.code.slice(0, -3))" alt="{{ entry.code }}" class="crypto-icon" (error)="onIconError($event)"/>
                 {{ entry.code }}
             </div>
         </mat-card-content>
@@ -26,7 +26,7 @@
                 <mat-list>
                     <div *ngFor="let entry of topCryptos" class="crypto-row">
                         <div class="crypto-info">
-                        <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" />
+                        <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" (error)="onIconError($event)"/>
                         {{ entry.code }} - {{ entry.last | currency }}
                         </div>
                         <button mat-flat-button (click)="addToWatchlist(entry)" *ngIf="!isWatched(entry.code)">
@@ -92,7 +92,7 @@
 
                             <!-- Icon + Code for 'code' column -->
                             <ng-container *ngSwitchCase="'code'">
-                                <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" />
+                                <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" (error)="onIconError($event)"/>
                                 {{ entry.code }}
                             </ng-container>
 

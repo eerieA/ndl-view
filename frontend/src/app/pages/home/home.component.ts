@@ -280,6 +280,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     return `assets/icons/${lowerSymbol}.svg`;
   }
 
+  onIconError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.onerror = null;            // prevent infinite loop
+    img.src = 'assets/icons/generic.svg';
+  }
+
   addToWatchlist(entry: CryptoEntry) {
     this.wlService.add({ code: entry.code });
     console.log("watchlist frontend:", this.watchlist);
