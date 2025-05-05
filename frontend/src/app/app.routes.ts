@@ -6,7 +6,6 @@ export const routes: Routes = [
     { path: '', component: HomeComponent },
     {
         path: 'crypto/:code',
-        component: CryptoDetailComponent,
-        data: { renderMode: 'client' } // Disable prerendering for this route
+        component: CryptoDetailComponent
     },
 ];
