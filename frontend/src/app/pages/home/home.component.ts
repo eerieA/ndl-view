@@ -1,4 +1,5 @@
 import { Component, inject, Inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { isPlatformBrowser, CommonModule } from '@angular/common'; // Import this
 import { Subscription, filter, take } from 'rxjs';
 import { NdlService } from '../../services/ndl.service';
@@ -16,7 +17,7 @@ import { NgxGaugeModule } from 'ngx-gauge';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, CommonModule, MatTableModule, MatCardModule, MatList, MatTabGroup, MatTab, MatButtonModule, NgxGaugeModule],
+  imports: [RouterModule, FormsModule, CommonModule, MatTableModule, MatCardModule, MatList, MatTabGroup, MatTab, MatButtonModule, NgxGaugeModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

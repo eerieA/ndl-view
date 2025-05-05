@@ -126,11 +126,27 @@
     vertical-align: middle;
 }
 
+.crypto-link {
+    text-decoration: none;
+    color: #1976d2; // Angular Material primary color
+    font-weight: 500;
+    transition: color 0.2s;
+
+    &:hover {
+        color: #0d47a1; // Darker blue on hover
+        text-decoration: underline;
+    }
+
+    &:visited {
+        color: #1976d2;
+    }
+}
+
 .watchlist-sidebar {
     flex-shrink: 1;
     max-height: 35vh;
     overflow-y: auto;
-    scrollbar-gutter: stable;   // Reserve scroll bar width
+    scrollbar-gutter: stable; // Reserve scroll bar width
     margin-right: -6px; // Compensate for the scroll bar reserved width
 }
 

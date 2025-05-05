@@ -93,7 +93,7 @@
                             <!-- Icon + Code for 'code' column -->
                             <ng-container *ngSwitchCase="'code'">
                                 <img [src]="entry.iconUrl" [alt]="entry.code" class="crypto-icon" (error)="onIconError($event)"/>
-                                {{ entry.code }}
+                                <a [routerLink]="['/crypto', entry.code]" class="crypto-link">{{ entry.code }}</a>
                             </ng-container>
 
                             <!-- Default rendering for other columns -->
