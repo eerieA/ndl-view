@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "inst": "cd frontend && npm install && cd ../backend && npm install",
+    "bk": "cd backend && npm run dev",
+    "fr": "cd frontend && ng serve",
     "cp-mdl": "node scripts/copy-shared-models.js"
   },
   "private": true,

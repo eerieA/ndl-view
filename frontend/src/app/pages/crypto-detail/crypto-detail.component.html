@@ -1,1 +1,7 @@
-<p>crypto-detail works!</p>
+<div class="home-layout">
+    <button mat-flat-button (click)="goBack()">←</button>
+    <mat-card *ngIf="isBrowser" class="chart-container">
+        <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="'line'">
+        </canvas>
+    </mat-card>
+</div>

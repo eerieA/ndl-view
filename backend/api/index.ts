@@ -29,10 +29,10 @@ app.get('/', (req: Request, res: Response) => {
 
 // For sending custom headers
 // If not do this, custom headers will be silently blocked
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Expose-Headers', 'x-ratelimit-limit, x-ratelimit-remaining');
-  next();
-});
+app.use(cors({
+  origin: '*',  // or your frontend domain
+  exposedHeaders: ['x-ratelimit-limit', 'x-ratelimit-remaining']
+}));
 
 app.get('/api/crypto', async (req, res) => {
   const { code, from, to } = req.query as {
@@ -105,6 +105,28 @@ app.get('/api/crypto/symbols', async (req, res) => {
   } catch (error) {
     console.error('Error fetching crypto symbols:', error);
     res.status(500).json({ error: 'Failed to fetch crypto symbols' });
+  }
+});
+
+app.get('/api/crypto/history', async (req, res) => {
+  const { code, from, to } = req.query;
+
+  if (!code || !from || !to) {
+    res.status(400).json({ error: 'Missing required query params' });
+    return;
+  }
+
+  try {
+    const url = `${NDL_BASE_URL}?date.gte=${from}&date.lte=${to}&code=${code}&api_key=${NDL_API_KEY}`;
+    const response = await axios.get(url);
+
+    // Relay select headers (NDL rate limit info)
+    relayHeaders(response.headers, res, ['x-ratelimit-limit', 'x-ratelimit-remaining']);
+
+    res.status(200).json(response.data);
+  } catch (err) {
+    console.error('Failed to fetch history data:', err);
+    res.status(500).json({ error: 'Failed to fetch crypto history data' });
   }
 });
 

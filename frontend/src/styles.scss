@@ -7,3 +7,10 @@ body {
   margin: 10px;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+// Customize Angular Material stuff globally
+body .mat-mdc-unelevated-button,
+body .mat-mdc-outlined-button {
+  height: var(--mdc-filled-button-container-height, 32px);
+  padding: 0 var(--mat-filled-button-horizontal-padding, 16px);
+}

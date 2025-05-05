@@ -18,16 +18,6 @@
     background: rgba(0, 0, 0, 0.05);
 }
 
-.mat-mdc-unelevated-button {
-    height: var(--mdc-filled-button-container-height, 32px);
-    padding: 0 var(--mat-filled-button-horizontal-padding, 16px);
-}
-
-.mat-mdc-outlined-button {
-    height: var(--mdc-filled-button-container-height, 32px);
-    padding: 0 var(--mat-filled-button-horizontal-padding, 16px);
-}
-
 .home-layout {
     flex: 1;
     display: flex;

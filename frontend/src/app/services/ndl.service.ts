@@ -45,4 +45,21 @@ export class NdlService {
     );
   }
 
+  getCryptoDetail(code: string, startDate: string, endDate: string): Observable<{ data: any, headers: any }> {
+    const url = `${this.beBaseUrl}/crypto/history?code=${code}&from=${startDate}&to=${endDate}`;
+    return this.http.get(url, { observe: 'response' }).pipe(
+      map((response) => {
+        console.log('Frontend received headers:', response.headers.keys());
+
+        return {
+          data: response.body,
+          headers: response.headers
+        };
+      }),
+      catchError((error) => {
+        console.error('Crypto history fetch error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }

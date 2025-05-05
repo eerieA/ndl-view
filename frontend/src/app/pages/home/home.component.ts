@@ -24,6 +24,7 @@ import { NgxGaugeModule } from 'ngx-gauge';
 export class HomeComponent implements OnInit, OnDestroy {
   private ndlService = inject(NdlService);
   private wlService = inject(WatchlistService);
+  private sub = new Subscription();
 
   columnDefs = [
     { key: 'code', label: 'Symbol', icon: true },
@@ -55,11 +56,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   pageSize = 5; // How many cryptos to load per "page"
   currentPage = 0;
   loadingPage = false;
-
-  chartOptions: any = {};
   isBrowser: boolean;
 
-  private sub = new Subscription();
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     // Check the platform and set isBrowser to true or false
@@ -67,21 +65,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.isBrowser) {
-      // Initialize chart and other client-side logic
-      this.chartOptions = {
-        responsive: true,
-        scales: {
-          x: {
-            beginAtZero: true
-          },
-          y: {
-            beginAtZero: true
-          }
-        }
-      };
-    }
-
     // Now that API key is no longer needed on frontend, load data directly
     this.loadData();
 
