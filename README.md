@@ -9,13 +9,14 @@ A list of what this app does.
 - Displays a list of cryptos with data from previous day.
 - Displays a ranked "top 5" list based on previous day's prices.
 - Displays simple market summary statistics from previous day.
+- Displays a crypto's rate history within a time window.
 - Let user add cryptos from the top list to a personal watchlist.
 - Let user remove cryptos from the watchlist through the top list.
 - Let user filter the crypto list based on the watchlist.
-- Let user load remaining pages of data only when they choose to.
+- Let user load remaining pages of data (lazy loading).
 
 ## Screenshot
-<img alt="Screenshot" src="https://live.staticflickr.com/65535/54483803224_5e420aca25_b.jpg" width="500">
+<img alt="Screenshot" src="./shared/preview.gif" width="500">
 
 # Docs
 
@@ -25,9 +26,11 @@ Using a super simple Express backend to hide API key from browser, and provide m
 
 Before first run, run `npm run inst` under project root. Then each time afterwards:
 
-- `cd frontend` then `ng serve` for frontend.
+- `npm run fr` for frontend.
 
-- `cd backend` then `npm run dev` for backend. This uses Nodemon for hot reloading.
+- `npm run bk` for backend. This uses Nodemon for hot reloading.
+
+Note: These are scripts defined in root *package.json*.
 
 ## Deployment settings
 
