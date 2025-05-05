@@ -25,6 +25,8 @@ export class CryptoDetailComponent implements OnInit {
   chartData: ChartConfiguration<'line'>['data'] = { labels: [], datasets: [] };
   chartOptions: ChartConfiguration<'line'>['options'] = {
     responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2,
   };
   rateLimitInfo = {
     remaining: 0,

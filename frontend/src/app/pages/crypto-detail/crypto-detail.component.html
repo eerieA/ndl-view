@@ -1,7 +1,9 @@
 <div class="home-layout">
+<div class="responsive-wrapper">
     <button mat-flat-button (click)="goBack()">←</button>
-    <mat-card *ngIf="isBrowser" class="chart-container">
+    <div *ngIf="isBrowser" class="chart-container">
         <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="'line'">
         </canvas>
-    </mat-card>
+    </div>
+</div>
 </div>

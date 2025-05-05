@@ -6,6 +6,13 @@ import dotenv from 'dotenv';
 import sql from '../services/db';
 import { getWatchlistByEmail, upsertWatchlistByEmail } from '../services/watchlist.service';
 import { isValidWatchlistEntry } from '../models/validators';
+import {
+  handleMockCryptoMulti,
+  handleMockCryptoSymbols,
+  handleMockCryptoHist,
+  handleMockWatchlist,
+  handleMockWatchlistPost
+} from './mock-handlers';
 
 dotenv.config();
 const app = express();
@@ -114,6 +121,12 @@ app.get('/api/crypto/history', async (req, res) => {
   if (!code || !from || !to) {
     res.status(400).json({ error: 'Missing required query params' });
     return;
+  }
+  
+  // For DEBUG
+  if (USE_MOCK_DATA) {
+    console.log(`Using internal mock data for crypto history of ${code}`);
+    return handleMockCryptoHist(req, res);
   }
 
   try {
@@ -230,231 +243,4 @@ function relayHeaders(
       targetResponse.setHeader(name, value.toString());
     }
   });
-}
-
-const mockCryptoList = {
-  "datatable": {
-    "data": [
-      [
-        "ZECUSD",
-        "2025-04-14",
-        34.795,
-        26.667,
-        30.17,
-        30.119,
-        30.119,
-        30.221,
-        7376.64624749
-      ],
-      [
-        "ZECBTC",
-        "2025-04-14",
-        0.000403,
-        0.00031341,
-        0.000362995,
-        0.00036353,
-        0.00035531,
-        0.00037068,
-        3114.57318898
-      ],
-      [
-        "RRTUSD",
-        "2025-04-14",
-        0.8252,
-        0.8252,
-        0.86014,
-        0.8252,
-        0.82029,
-        0.89999,
-        33.62159216
-      ],
-      [
-        "LTCUSD",
-        "2025-04-14",
-        80.54,
-        75.729,
-        76.9255,
-        76.93,
-        76.881,
-        76.97,
-        9944.35215942
-      ],
-      [
-        "LTCBTC",
-        "2025-04-14",
-        0.00093796,
-        0.0009023,
-        0.00091097,
-        0.00090936,
-        0.0009106,
-        0.00091134,
-        7087.45081847
-      ],
-      [
-        "ETHUSD",
-        "2025-04-14",
-        1689.8,
-        1582.1,
-        1620.95,
-        1620.1,
-        1620.9,
-        1621,
-        8675.49927813
-      ],
-      [
-        "ETHBTC",
-        "2025-04-14",
-        0.019921,
-        0.019002,
-        0.01918,
-        0.019177,
-        0.019177,
-        0.019183,
-        5087.27628031
-      ],
-      [
-        "ETCUSD",
-        "2025-04-14",
-        15.804,
-        15.123,
-        15.2735,
-        15.298,
-        15.267,
-        15.28,
-        2255.68710639
-      ],
-      [
-        "ETCBTC",
-        "2025-04-14",
-        0.000186,
-        0.00018023,
-        0.000180695,
-        0.00018023,
-        0.00018053,
-        0.00018086,
-        485.99953082
-      ],
-      [
-        "BTCUSD",
-        "2025-04-14",
-        85727,
-        83167,
-        84517.5,
-        84530,
-        84517,
-        84518,
-        186.06922417
-      ]
-    ],
-    "columns": [
-      {
-        "name": "code",
-        "type": "text"
-      },
-      {
-        "name": "date",
-        "type": "Date"
-      },
-      {
-        "name": "high",
-        "type": "double"
-      },
-      {
-        "name": "low",
-        "type": "double"
-      },
-      {
-        "name": "mid",
-        "type": "double"
-      },
-      {
-        "name": "last",
-        "type": "double"
-      },
-      {
-        "name": "bid",
-        "type": "double"
-      },
-      {
-        "name": "ask",
-        "type": "double"
-      },
-      {
-        "name": "volume",
-        "type": "double"
-      }
-    ]
-  },
-  "meta": {
-    "next_cursor_id": null
-  }
-};
-
-function handleMockCryptoMulti(req: Request, res: Response) {
-  // Simulate rate limit headers like NDL
-  res.setHeader('x-ratelimit-limit', '100');
-  res.setHeader('x-ratelimit-remaining', '98');
-  res.status(200).json(mockCryptoList);
-}
-
-function handleMockCryptoSymbols(req: Request, res: Response) {
-  const symbolList = mockCryptoList.datatable.data.map(entry => [entry[0]]); // Wrap each symbol in an array
-
-  const mockResponse = {
-    datatable: {
-      data: symbolList
-    }
-  };
-
-  res.setHeader('x-ratelimit-limit', '100');
-  res.setHeader('x-ratelimit-remaining', '98');
-  res.status(200).json(mockResponse);
-}
-
-const mockWatchlists: Record<string, { email: string; name: string; watchlist: any[] }> = {
-  'mock@123.com': {
-    email: 'test@123.com',
-    name: 'test',
-    watchlist: [
-      {
-        "code": "BTCUSD"
-      },
-      {
-        "code": "ETHUSD"
-      }
-    ],
-  }
-};
-
-function handleMockWatchlist(req: Request, res: Response) {
-  const email = req.query.email as string;
-
-  const matchedKey = Object.keys(mockWatchlists).find(key => key.includes('mock'));
-
-  if (!matchedKey) {
-    res.status(404).json({ error: 'No static mock watchlist found' });
-    return;
-  }
-
-  const mockData = mockWatchlists[matchedKey];
-
-  res.json(mockData.watchlist);
-}
-
-function handleMockWatchlistPost(req: Request, res: Response) {
-  const { email, name, watchlist } = req.body;
-
-  console.log('🧪 Received mock watchlist POST:', { email, name, watchlist });
-
-  if (
-    !email ||
-    !name ||
-    !Array.isArray(watchlist) ||
-    !watchlist.every(isValidWatchlistEntry)
-  ) {
-    res.status(400).json({ error: 'Invalid mock watchlist format' });
-    return;
-  }
-
-  res.status(200).json({ message: 'Mock watchlist "saved" successfully!' });
 }
